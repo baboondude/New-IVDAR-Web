@@ -1142,7 +1142,8 @@ function updateAllocationDetails(index) {
 
 // Initialize charts after DOM content loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Initial Setup for Animations ---
+    // --- Initial Setup for Animations & Loading Screen ---
+    const loadingScreen = document.getElementById('loading-screen');
     // Set elements to be animated to initial state (hidden)
     const elementsToAnimate = [
         '.page-header h1', 
@@ -1156,8 +1157,6 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
     
     anime.set(elementsToAnimate, { opacity: 0, translateY: 20 });
-    // Add allocation details elements to initial hidden state
-    // anime.set(['.allocation-info h3', '.allocation-value'], { opacity: 0, translateY: 10 });
     // Set containers to hidden initially to prevent content flash before animation
     anime.set(['#calculationResults', '#dollarReturnsSection', '#desktop-dollar-valuation-section'], { height: 0, padding: 0, margin: 0, border: 'none' });
 
@@ -1861,36 +1860,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Page Load Animations ---
+    // --- Page Load Animations Timeline (Setup) ---
     const tl = anime.timeline({
-        easing: 'easeOutExpo', // Default easing for the timeline
-        duration: 800 // Default duration
+        easing: 'easeOutCubic', // Changed to easeOutCubic for a slightly different smooth feel
+        duration: 600, // Reduced default duration from 800ms to 600ms
+        autoplay: false // *** Important: Don't autoplay the timeline ***
     });
 
     tl
     .add({
         targets: '.page-header h1',
         opacity: [0, 1],
-        translateY: [20, 0],
-        delay: 100
+        translateY: [15, 0], // Slightly reduced translation
+        delay: 50 // Reduced delay from 100ms to 50ms
     })
     .add({
         targets: '.page-header p',
         opacity: [0, 1],
-        translateY: [20, 0]
-    }, '-=600') // Start slightly after the title
+        translateY: [15, 0] // Slightly reduced translation
+    }, '-=450') // Adjusted offset timing (relative to previous animation end)
     .add({
         targets: '.summary-item',
         opacity: [0, 1],
-        translateY: [20, 0],
-        delay: anime.stagger(100, { start: 300 }) // Stagger animation for summary items
-    }, '-=400')
+        translateY: [15, 0], // Slightly reduced translation
+        delay: anime.stagger(80, { start: 150 }) // Reduced stagger (80ms) and start delay (150ms)
+    }, '-=300') // Adjusted offset timing
     .add({
         targets: '.card',
         opacity: [0, 1],
-        translateY: [20, 0],
-        delay: anime.stagger(120, { start: 500 }) // Stagger animation for cards
-    }, '-=500');
+        translateY: [15, 0], // Slightly reduced translation
+        delay: anime.stagger(100, { start: 250 }) // Reduced stagger (100ms) and start delay (250ms)
+    }, '-=350'); // Adjusted offset timing
+
+    // --- Loading Screen Logic ---
+    window.addEventListener('load', () => {
+        if (loadingScreen) {
+            // Start fade out animation for loading screen
+            loadingScreen.classList.add('hidden');
+
+            // Wait for the fade-out transition to finish (matches CSS transition duration)
+            setTimeout(() => {
+                // Remove loading screen from DOM (optional, but cleaner)
+                // loadingScreen.remove(); 
+                
+                // Start the main content animations now
+                tl.play(); 
+            }, 600); // Match the 0.6s transition duration in CSS
+        }
+    });
 
     // Removed the animation for .allocation-info h3/value from the main timeline
     // as the popup is hidden initially. Content animation is handled in updateAllocationDetails.
