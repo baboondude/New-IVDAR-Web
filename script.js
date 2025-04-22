@@ -1339,54 +1339,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Valuation chart container not found");
     }
     
-    // Add event listeners for valuation sort buttons
-    const valuationSortControls = document.querySelector('.valuation-sort-controls');
-    if (valuationChart && valuationSortControls) {
-        valuationSortControls.addEventListener('click', function(event) {
-            if (event.target.tagName === 'BUTTON') {
-                // Update active button state
-                valuationSortControls.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
-
-                // Combine categories and data for sorting
-                let items = initialValuationData.categories.map((category, index) => ({
-                    category: category,
-                    value: initialValuationData.seriesData[index]
-                }));
-
-                // Sort based on button ID
-                const sortType = event.target.id;
-                if (sortType === 'valuation-sort-overpriced') {
-                    items.sort((a, b) => b.value - a.value); // Descending (most overpriced first)
-                } else if (sortType === 'valuation-sort-underpriced') {
-                    items.sort((a, b) => a.value - b.value); // Ascending (most underpriced first)
-                } else { // Default sort (use original order)
-                    // Reset items based on the original categories order
-                     items = initialValuationData.categories.map((category, index) => ({
-                        category: category,
-                        value: initialValuationData.seriesData[index]
-                    }));
-                }
-
-                // Extract sorted data
-                const sortedCategories = items.map(item => item.category);
-                const sortedData = items.map(item => item.value);
-                const sortedColors = initialValuationData.getColors(sortedData);
-
-                // Update chart
-                valuationChart.updateOptions({
-                    xaxis: {
-                        categories: sortedCategories
-                    },
-                    series: [{
-                        data: sortedData
-                    }],
-                    colors: sortedColors
-                });
-            }
-        });
-    }
-    
     // Add card hover effect
     document.querySelectorAll('.card, .summary-item').forEach(item => {
         item.addEventListener('mouseenter', function() {
@@ -1834,19 +1786,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!isNaN(portfolioValue) && portfolioValue > 0) {
                     updateDollarReturnSection(portfolioValue);
                 }
-            });
-        });
-        
-        // Add listeners to update valuation section when sort options change
-        document.querySelectorAll('#valuation-sort-default, #valuation-sort-overpriced, #valuation-sort-underpriced').forEach(button => {
-            button.addEventListener('click', function() {
-                // Just delay slightly to allow the chart to update first
-                setTimeout(() => {
-                    const portfolioValue = parseInputValue(portfolioValueInput.value);
-                    if (!isNaN(portfolioValue) && portfolioValue > 0) {
-                        updateDollarValuationSection(portfolioValue);
-                    }
-                }, 300);
             });
         });
 

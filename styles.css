@@ -717,8 +717,7 @@ tbody tr:hover {
  }
 
  .allocation-controls,
- .scenario-controls,
- .valuation-sort-controls {
+ .scenario-controls {
      display: flex;
      justify-content: center;
      gap: 10px;
@@ -726,8 +725,7 @@ tbody tr:hover {
  }
 
  .allocation-controls button,
- .scenario-controls button,
- .valuation-sort-controls button {
+ .scenario-controls button {
      background: rgba(18, 21, 28, 0.7);
      border: 1px solid var(--border-color);
      color: var(--text-muted-color);
@@ -742,8 +740,7 @@ tbody tr:hover {
  }
 
  .allocation-controls button:hover,
- .scenario-controls button:hover,
- .valuation-sort-controls button:hover {
+ .scenario-controls button:hover {
      background: var(--highlight-color);
      color: var(--text-color);
      border-color: var(--accent-color);
@@ -752,8 +749,7 @@ tbody tr:hover {
  }
 
  .allocation-controls button.active,
- .scenario-controls button.active,
- .valuation-sort-controls button.active {
+ .scenario-controls button.active {
      background: var(--accent-color);
      color: #fff;
      border-color: var(--accent-color);
@@ -957,8 +953,7 @@ tbody tr:hover {
  
  /* Focus style for allocation buttons */
  .allocation-controls button:focus-visible,
- .scenario-controls button:focus-visible,
- .valuation-sort-controls button:focus-visible {
+ .scenario-controls button:focus-visible {
      border-color: var(--accent-color);
  }
 
