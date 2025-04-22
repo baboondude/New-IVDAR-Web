@@ -773,22 +773,93 @@ const commonChartOptions = {
     }]
 };
 
+// --- Animation Helper Functions for Allocation Chart ---
+
+// Function to animate slice/legend hover state
+function handleAllocationHover(index, shouldHighlight) {
+    if (index === undefined || index < 0) return;
+
+    const duration = 150;
+    const easing = 'easeOutQuad';
+    const scale = shouldHighlight ? 1.06 : 1;
+    const fontWeight = shouldHighlight ? '600' : '500';
+    const color = shouldHighlight ? getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() : getComputedStyle(document.documentElement).getPropertyValue('--text-muted-color').trim();
+
+    // Target the specific slice path (ApexCharts uses 'j' attribute for index)
+    const sliceSelector = `#allocation-chart path.apexcharts-pie-slice[j='${index}']`;
+    const sliceElement = document.querySelector(sliceSelector);
+    if (sliceElement) {
+        anime.remove(sliceElement); // Remove existing animations
+        anime({
+            targets: sliceElement,
+            scale: scale,
+            duration: duration,
+            easing: easing,
+            transformOrigin: '50% 50%' // Ensure scaling is from the center
+        });
+    }
+
+    // Target the specific legend item (ApexCharts uses 'rel' attribute, 1-based)
+    const legendSelector = `#allocation-chart .apexcharts-legend-series[rel='${index + 1}'] .apexcharts-legend-text`;
+    const legendElement = document.querySelector(legendSelector);
+    if (legendElement) {
+        anime.remove(legendElement); // Remove existing animations
+        anime({
+            targets: legendElement,
+            fontWeight: fontWeight,
+            color: color, // Animate color for better feedback
+            duration: duration,
+            easing: easing
+        });
+    }
+}
+
+// Function to animate slice click
+function animateAllocationClick(index) {
+    if (index === undefined || index < 0) return;
+
+    const sliceSelector = `#allocation-chart path.apexcharts-pie-slice[j='${index}']`;
+    const sliceElement = document.querySelector(sliceSelector);
+    if (sliceElement) {
+        anime.remove(sliceElement);
+        anime({
+            targets: sliceElement,
+            scale: [1, 1.1, 1], // Scale up then back down
+            duration: 300,
+            easing: 'easeInOutQuad',
+            transformOrigin: '50% 50%'
+        });
+    }
+}
+
 // Donut chart options
 const donutOptions = {
     ...commonChartOptions,
     chart: {
         ...commonChartOptions.chart,
+        height: 360, // Ensure consistent height
         type: 'donut',
         events: {
             dataPointSelection: function(event, chartContext, config) {
+                animateAllocationClick(config.dataPointIndex);
                 updateAllocationDetails(config.dataPointIndex);
             },
             dataPointMouseEnter: function(event, chartContext, config) {
                 const seriesIndex = config.dataPointIndex;
                 document.querySelector('#allocation-chart').style.cursor = 'pointer';
+                handleAllocationHover(seriesIndex, true);
             },
             dataPointMouseLeave: function(event, chartContext, config) {
                 document.querySelector('#allocation-chart').style.cursor = 'default';
+                handleAllocationHover(config.dataPointIndex, false);
+            },
+            // CORRECTED legendClick handler
+            legendClick: function(chartContext, seriesIndex, config) {
+                // Call the same functions as dataPointSelection
+                animateAllocationClick(seriesIndex);
+                updateAllocationDetails(seriesIndex);
+                // Optional: Prevent default toggling if it was somehow re-enabled
+                return false; 
             }
         }
     },
@@ -816,12 +887,12 @@ const donutOptions = {
     legend: {
         position: 'bottom',
         fontSize: '12px', // Adjusted size
-        itemMargin: {
-            horizontal: 8, // Adjust spacing
-            vertical: 4
-        },
+        fontWeight: 500, // Base font weight
         onItemClick: {
-            toggleDataSeries: false
+            toggleDataSeries: false // Ensure this is false
+        },
+        onItemHover: {
+            highlightDataSeries: false // Disable default Apex hover effect
         },
         markers: {
             width: 12,
@@ -837,8 +908,7 @@ const donutOptions = {
     states: {
         hover: {
             filter: {
-                type: 'darken',
-                value: 0.15
+                type: 'none' // Disable default Apex hover filter
             }
         },
         active: {
@@ -990,28 +1060,61 @@ const barOptions = {
 
 // Function to update allocation details panel
 function updateAllocationDetails(index) {
-    if (index === undefined || index < 0) {
-        // Reset to default
-        document.querySelector('.allocation-info h3').textContent = 'Selected Asset';
-        document.querySelector('.allocation-value').textContent = 'Click a segment to view details';
+    // --- Popup Logic ---
+    const popupElement = document.querySelector('.allocation-container > .allocation-info');
+    const parentCard = popupElement ? popupElement.closest('.card.card-large') : null;
+
+    if (!popupElement || !parentCard) {
+        console.error("Allocation info popup or parent card element not found.");
         return;
     }
 
+    const isResetting = (index === undefined || index < 0);
+
+    // Remove any existing animations on the popup content
+    const titleElement = popupElement.querySelector('h3');
+    const valueElement = popupElement.querySelector('.allocation-value');
+    if (titleElement && valueElement) {
+        anime.remove([titleElement, valueElement]);
+    }
+    
+    if (isResetting) {
+        // Remove active class from parent card
+        parentCard.classList.remove('allocation-card-popup-active');
+        // Hide the popup using CSS class
+        popupElement.classList.remove('is-visible');
+
+        // Optional: Clear content after transition (use timeout matching CSS transition duration)
+        setTimeout(() => {
+            // Check if it's still hidden before clearing
+            if (!popupElement.classList.contains('is-visible')) {
+                if (titleElement) titleElement.textContent = 'Selected Asset';
+                if (valueElement) valueElement.innerHTML = '';
+            }
+        }, 300); // Match CSS transition duration
+        return;
+    }
+
+    // --- Content Update Logic (Runs only if not resetting) ---
+    if (!titleElement || !valueElement) return; // Should already be checked, but safe
+
+    // Add active class to parent card
+    parentCard.classList.add('allocation-card-popup-active');
+    // Show the popup using CSS class
+    popupElement.classList.add('is-visible');
+
+    // Scroll the parent card into view smoothly, centering it
+    parentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Update content immediately 
     const label = allocations.labels[index];
     const value = allocations.series[index];
     const description = allocations.descriptions[index];
     const risk = allocations.risks[index];
     const horizon = allocations.horizons[index];
-    
-    // Update the details section
-    const infoElement = document.querySelector('.allocation-info');
-    const valueElement = document.querySelector('.allocation-value');
-    
-    if (!infoElement || !valueElement) return; // Add check
-    
-    infoElement.querySelector('h3').textContent = label;
-    
-    // Create a rich info display
+
+    titleElement.textContent = label;
+
     const detailHTML = `
         <div>${value.toFixed(2)}%</div>
         <div class="allocation-detail-text">${description}</div>
@@ -1021,98 +1124,180 @@ function updateAllocationDetails(index) {
         </div>
     `;
     valueElement.innerHTML = detailHTML;
-    
-    // Update stats (optional)
+
+    // Animate only the fade-in for the new content (triggered slightly after CSS transition starts)
+    anime({
+        targets: [titleElement, valueElement],
+        opacity: [0, 1],
+        translateY: [10, 0],
+        delay: anime.stagger(50), // Delay slightly
+        duration: 300,
+        easing: 'easeOutCubic'
+    });
+
+    // Update stats (this doesn't need animation)
     const stockTotal = allocations.series.slice(0, 3).reduce((a, b) => a + b, 0);
     document.getElementById('stock-total').textContent = stockTotal.toFixed(2) + '%';
 }
 
 // Initialize charts after DOM content loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // --- Initial Setup for Animations ---
+    // Set elements to be animated to initial state (hidden)
+    const elementsToAnimate = [
+        '.page-header h1', 
+        '.page-header p', 
+        '.summary-item', 
+        '.card',
+        '#calculationResults',
+        '#dollarReturnsSection',
+        '#desktop-dollar-valuation-section'
+        // Do not animate .allocation-info here, CSS handles its initial state
+    ];
+    
+    anime.set(elementsToAnimate, { opacity: 0, translateY: 20 });
+    // Add allocation details elements to initial hidden state
+    // anime.set(['.allocation-info h3', '.allocation-value'], { opacity: 0, translateY: 10 });
+    // Set containers to hidden initially to prevent content flash before animation
+    anime.set(['#calculationResults', '#dollarReturnsSection', '#desktop-dollar-valuation-section'], { height: 0, padding: 0, margin: 0, border: 'none' });
+
     // Initialize charts
     let allocationChart;
     let currentAllocationChartType = 'donut';
     let returnsChart; // Declare returnsChart here
     let valuationChart; // Declare valuation chart variable
+    let calculatorHasAnimated = false; // Flag for calculator animation
     
     // Chart Containers - Check if they exist
     const allocationChartContainer = document.querySelector("#allocation-chart");
     const returnsChartContainer = document.querySelector("#returns-chart");
     const valuationChartContainer = document.querySelector("#overprice-chart");
 
+    // --- Allocation Chart Event Listeners ---
+    const allocationInfoPopup = document.querySelector('.allocation-container > .allocation-info');
+    const closePopupButton = document.querySelector('.allocation-container > .allocation-info .allocation-info-close');
+    const viewDonutButton = document.getElementById('view-as-donut');
+    const viewBarButton = document.getElementById('view-as-bar');
+
+    // Close button listener
+    if (closePopupButton && allocationInfoPopup) {
+        closePopupButton.addEventListener('click', () => {
+            updateAllocationDetails(-1); // Use the reset logic
+        });
+    } else {
+        if (!allocationInfoPopup) console.error("Popup element not found for listener setup.");
+        if (!closePopupButton) console.error("Close button not found for listener setup.");
+    }
+
+    // Donut/Bar toggle listeners to close popup
+    if (viewDonutButton) {
+        viewDonutButton.addEventListener('click', function() {
+            if (currentAllocationChartType !== 'donut' && allocationChartContainer && allocationChart) {
+                updateAllocationDetails(-1); // Close popup before switching
+                document.getElementById('view-as-donut').classList.add('active');
+                document.getElementById('view-as-bar').classList.remove('active');
+                
+                // Animate transition
+                anime({
+                    targets: allocationChartContainer,
+                    opacity: 0,
+                    duration: 300,
+                    easing: 'easeOutQuad',
+                    complete: () => {
+                        allocationChart.destroy();
+                        allocationChartContainer.style.height = '380px'; // Reset height for donut
+                        allocationChart = new ApexCharts(allocationChartContainer, donutOptions);
+                        allocationChart.render().then(() => {
+                            // Ensure hover listeners are re-added AFTER render completes
+                            addLegendHoverListeners('#allocation-chart', handleAllocationHover); 
+                            anime({
+                                targets: allocationChartContainer,
+                                opacity: 1,
+                                duration: 300,
+                                easing: 'easeInQuad'
+                            });
+                        });
+                    }
+                });
+
+                currentAllocationChartType = 'donut';
+                
+                // updateAllocationDetails(-1); // Already called above
+            }
+        });
+    }
+    
+    if (viewBarButton) {
+        viewBarButton.addEventListener('click', function() {
+            if (currentAllocationChartType !== 'bar' && allocationChartContainer && allocationChart) {
+                updateAllocationDetails(-1); // Close popup before switching
+                document.getElementById('view-as-donut').classList.remove('active');
+                document.getElementById('view-as-bar').classList.add('active');
+                
+                try {
+                    // Animate transition
+                    anime({
+                        targets: allocationChartContainer,
+                        opacity: 0,
+                        duration: 300,
+                        easing: 'easeOutQuad',
+                        complete: () => {
+                            allocationChart.destroy();
+                            
+                            // Create a bar-specific config (no legend interaction needed for bar)
+                            // Create a bar-specific config that includes distributed colors
+                            const barSpecificConfig = {
+                                ...barOptions,
+                                colors: allocations.colors, // Ensure colors are applied
+                                chart: {
+                                    ...barOptions.chart,
+                                    animations: {
+                                        enabled: true, // Keep ApexCharts animations too
+                                        animateGradually: {
+                                            enabled: true,
+                                            delay: 150
+                                        },
+                                        dynamicAnimation: {
+                                            enabled: true,
+                                            speed: 350
+                                        }
+                                    }
+                                }
+                            };
+                            
+                            // console.log("Bar chart config:", JSON.stringify(barSpecificConfig.series)); // Optional debug line
+                            
+                            allocationChartContainer.style.height = '350px'; // Ensure height is set for bar chart
+                            allocationChart = new ApexCharts(allocationChartContainer, barSpecificConfig);
+                            allocationChart.render().then(() => {
+                                anime({
+                                    targets: allocationChartContainer,
+                                    opacity: 1,
+                                    duration: 300,
+                                    easing: 'easeInQuad'
+                                });
+                            });
+                            currentAllocationChartType = 'bar';
+                            // updateAllocationDetails(-1); // Already called above
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error("Error switching to bar chart:", error);
+                }
+            }
+        });
+    }
+    
     // Initial Allocation Chart Render
     if (allocationChartContainer) {
         allocationChart = new ApexCharts(allocationChartContainer, donutOptions);
         allocationChart.render();
+        // Add manual hover listeners after chart is rendered
+        addLegendHoverListeners('#allocation-chart', handleAllocationHover);
     } else {
         console.error("Allocation chart container not found");
     }
-    
-    // Button event handlers
-    document.getElementById('view-as-donut').addEventListener('click', function() {
-        if (currentAllocationChartType !== 'donut' && allocationChartContainer && allocationChart) {
-            document.getElementById('view-as-donut').classList.add('active');
-            document.getElementById('view-as-bar').classList.remove('active');
-            
-            // Destroy existing chart and create new one
-            allocationChart.destroy();
-            allocationChart = new ApexCharts(allocationChartContainer, donutOptions);
-            allocationChart.render();
-            currentAllocationChartType = 'donut';
-            
-            // Reset details
-            updateAllocationDetails(-1);
-        }
-    });
-    
-    document.getElementById('view-as-bar').addEventListener('click', function() {
-        if (currentAllocationChartType !== 'bar' && allocationChartContainer && allocationChart) {
-            console.log("Switching to bar chart view");
-            
-            // Update button states
-            document.getElementById('view-as-donut').classList.remove('active');
-            document.getElementById('view-as-bar').classList.add('active');
-            
-            try {
-                // Create a bar-specific config that includes distributed colors
-                const barSpecificConfig = {
-                    ...barOptions,
-                    colors: allocations.colors, // Ensure colors are applied
-                    chart: {
-                        ...barOptions.chart,
-                        animations: {
-                            enabled: true,
-                            animateGradually: {
-                                enabled: true,
-                                delay: 150
-                            },
-                            dynamicAnimation: {
-                                enabled: true,
-                                speed: 350
-                            }
-                        }
-                    }
-                };
-                
-                console.log("Bar chart config:", JSON.stringify(barSpecificConfig.series));
-                
-                // Destroy existing chart and create new one
-                allocationChart.destroy();
-                
-                allocationChartContainer.style.height = '350px'; // Ensure height is set for bar chart
-                allocationChartContainer.style.visibility = 'visible';
-                
-                allocationChart = new ApexCharts(allocationChartContainer, barSpecificConfig);
-                allocationChart.render();
-                currentAllocationChartType = 'bar';
-                
-                // Reset details
-                updateAllocationDetails(-1);
-            } catch (error) {
-                console.error("Error switching to bar chart:", error);
-            }
-        }
-    });
     
     // Initialize returns chart
     if (returnsChartContainer) {
@@ -1260,11 +1445,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const calculatePortfolioAllocation = () => {
             const portfolioValue = parseInputValue(portfolioValueInput.value);
             if (isNaN(portfolioValue) || portfolioValue <= 0) {
-                // Hide results if input is invalid
-                calculationResults.style.display = 'none';
-                // Hide other portfolio-related sections
-                document.getElementById('dollarReturnsSection').style.display = 'none';
-                document.getElementById('desktop-dollar-valuation-section').style.display = 'none';
+                // Reset animation state if invalid input
+                anime({
+                    targets: ['#calculationResults', '#dollarReturnsSection', '#desktop-dollar-valuation-section'],
+                    opacity: 0,
+                    height: 0,
+                    padding: 0,
+                    margin: 0,
+                    borderWidth: 0,
+                    duration: 400,
+                    easing: 'easeOutQuad',
+                    complete: function(anim) {
+                        // Ensure display none after animation if needed, but height: 0 usually suffices
+                    }
+                });
                 return;
             }
             
@@ -1318,8 +1512,29 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update total amount display
             totalAmountSpan.textContent = `Total: ${formatter.format(portfolioValue)}`;
             
-            // Show the results with animation
-            calculationResults.style.display = 'block';
+            // Animate the results section in ONLY if it hasn't animated before
+            if (!calculatorHasAnimated) {
+                anime.remove(calculationResults); // Remove previous animations on this target
+                anime({
+                    targets: calculationResults,
+                    opacity: [0, 1],
+                    height: [0, calculationResults.scrollHeight], // Animate height to content size
+                    padding: ['0px 15px', '15px'], // Animate padding
+                    marginTop: [0, '15px'], // Animate margin
+                    borderWidth: [0, 1], // Animate border
+                    duration: 600,
+                    easing: 'easeOutCubic'
+                });
+                calculatorHasAnimated = true; // Set flag after initiating animation
+            } else {
+                // If already animated, ensure it's visible without animation
+                // This handles cases where it might have been hidden by invalid input
+                calculationResults.style.opacity = '1';
+                calculationResults.style.height = 'auto'; // Or recalculate scrollHeight if needed
+                calculationResults.style.padding = '15px';
+                calculationResults.style.marginTop = '15px';
+                calculationResults.style.borderWidth = '1px';
+            }
             
             // Update portfolio value display elsewhere on the page
             const portfolioValueDisplay = document.getElementById('desktopPortfolioValueDisplay');
@@ -1413,8 +1628,18 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             returnsBody.appendChild(totalRow);
             
-            // Show the section
-            returnsSection.style.display = 'block';
+            // Animate the dollar returns section in
+            anime.remove(returnsSection);
+            anime({
+                targets: returnsSection,
+                opacity: [0, 1],
+                height: [0, returnsSection.scrollHeight],
+                paddingTop: [0, 15],
+                marginTop: [0, 20],
+                borderTopWidth: [0, 1],
+                duration: 500,
+                easing: 'easeOutCubic'
+            });
         };
         
         // Function to update dollar valuation section
@@ -1426,7 +1651,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Don't show for small portfolio values to avoid clutter
             if (portfolioValue < 5000) {
-                valuationSection.style.display = 'none';
+                anime({
+                    targets: valuationSection,
+                    opacity: 0,
+                    height: 0,
+                    padding: 0,
+                    margin: 0,
+                    borderWidth: 0,
+                    duration: 400,
+                    easing: 'easeOutQuad'
+                });
                 return;
             }
             
@@ -1530,8 +1764,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             valuationBody.appendChild(totalRow);
             
-            // Show the section
-            valuationSection.style.display = 'block';
+            // Animate the valuation section in
+            anime.remove(valuationSection);
+            anime({
+                targets: valuationSection,
+                opacity: [0, 1],
+                height: [0, valuationSection.scrollHeight],
+                paddingTop: [0, 15],
+                marginTop: [0, 20],
+                borderTopWidth: [0, 1],
+                duration: 500,
+                easing: 'easeOutCubic'
+            });
         };
         
         // Set up event listeners for real-time updates
@@ -1616,6 +1860,40 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // --- Page Load Animations ---
+    const tl = anime.timeline({
+        easing: 'easeOutExpo', // Default easing for the timeline
+        duration: 800 // Default duration
+    });
+
+    tl
+    .add({
+        targets: '.page-header h1',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        delay: 100
+    })
+    .add({
+        targets: '.page-header p',
+        opacity: [0, 1],
+        translateY: [20, 0]
+    }, '-=600') // Start slightly after the title
+    .add({
+        targets: '.summary-item',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        delay: anime.stagger(100, { start: 300 }) // Stagger animation for summary items
+    }, '-=400')
+    .add({
+        targets: '.card',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        delay: anime.stagger(120, { start: 500 }) // Stagger animation for cards
+    }, '-=500');
+
+    // Removed the animation for .allocation-info h3/value from the main timeline
+    // as the popup is hidden initially. Content animation is handled in updateAllocationDetails.
 });
 
 // Mobile menu JavaScript
@@ -1649,4 +1927,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-}); 
+});
+
+// --- Manual Legend Hover Listeners ---
+function addLegendHoverListeners(chartSelector, hoverHandler) {
+    const legendItems = document.querySelectorAll(`${chartSelector} .apexcharts-legend-series`);
+    legendItems.forEach((item, index) => {
+        // Use mouseenter/mouseleave for better event handling for HOVER effects
+        item.addEventListener('mouseenter', () => {
+            hoverHandler(index, true);
+        });
+        item.addEventListener('mouseleave', () => {
+            hoverHandler(index, false);
+        });
+        // REMOVED: Click listener is now handled by ApexCharts legendClick config
+        // item.addEventListener('click', () => {
+        //      animateAllocationClick(index);
+        //      updateAllocationDetails(index);
+        // });
+    });
+} 

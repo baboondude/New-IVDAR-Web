@@ -335,10 +335,11 @@ header .date-momentum p {
     padding: 24px;
     box-shadow: var(--box-shadow);
     border: var(--card-border);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1), margin-bottom 0.35s ease-out;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     backdrop-filter: blur(5px);
+    margin-bottom: 0;
 }
 
 .card::before {
@@ -619,12 +620,12 @@ tbody tr:hover {
      flex-wrap: wrap;
      gap: 24px;
      align-items: stretch;
+     position: relative;
  }
 
  #allocation-chart {
      flex: 1;
      min-width: 280px;
-     min-height: 360px;
      height: 360px;
  }
 
@@ -642,12 +643,37 @@ tbody tr:hover {
  }
 
  .allocation-info {
-     margin-bottom: 20px;
+     position: absolute;
+     top: calc(360px + 15px);
+     left: 25%;
+     transform: translateX(-50%) translateY(10px) scale(0.95);
+     z-index: 10;
+     width: calc(50% - 30px);
+     max-width: 400px;
+     background: var(--card-bg-gradient);
+     border-radius: var(--border-radius-sm);
+     padding: 20px;
+     padding-top: 30px;
+     border: var(--card-border);
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
      text-align: center;
+     opacity: 0;
+     visibility: hidden;
+     transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+     pointer-events: none;
+     margin-top: 0;
+ }
+
+ .allocation-info.is-visible {
+     opacity: 1;
+     visibility: visible;
+     transform: translateX(-50%) translateY(0) scale(1);
+     pointer-events: auto;
  }
 
  .allocation-info h3 {
-     margin: 0 0 10px 0;
+     margin-top: 0;
+     margin-bottom: 10px;
      color: var(--text-muted-color);
      font-size: 0.8em;
      text-transform: uppercase;
@@ -655,14 +681,38 @@ tbody tr:hover {
      font-weight: 600;
  }
 
+ .allocation-info-close {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     background: none;
+     border: none;
+     font-size: 1.6rem;
+     line-height: 1;
+     color: var(--text-muted-color);
+     cursor: pointer;
+     padding: 5px;
+     transition: color 0.2s ease;
+ }
+
+ .allocation-info-close:hover {
+     color: var(--text-color);
+ }
+
+ .allocation-info-close:focus-visible {
+     outline: 2px solid var(--accent-color);
+     outline-offset: 1px;
+     border-radius: 4px;
+ }
+
  .allocation-value {
+     margin-bottom: 10px;
      font-size: 1.7em;
      font-weight: 700;
      background: linear-gradient(to right, var(--accent-color), var(--secondary-accent));
      -webkit-background-clip: text;
      background-clip: text;
      -webkit-text-fill-color: transparent;
-     padding: 10px 0;
      letter-spacing: -0.5px;
  }
 
@@ -682,7 +732,7 @@ tbody tr:hover {
      border: 1px solid var(--border-color);
      color: var(--text-muted-color);
      padding: 8px 14px;
-     border-radius: 20px; /* More rounded buttons */
+     border-radius: 20px;
      cursor: pointer;
      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
      font-family: var(--font-family);
@@ -756,6 +806,16 @@ tbody tr:hover {
  @media (max-width: 1100px) {
      .allocation-container {
          flex-direction: column;
+     }
+     .allocation-info {
+         left: 50%;
+         width: calc(100% - 44px);
+         max-width: 500px;
+         top: calc(300px + 15px);
+         transform: translateX(-50%) translateY(10px) scale(0.95);
+     }
+     .allocation-info.is-visible {
+         transform: translateX(-50%) translateY(0) scale(1);
      }
      #allocation-chart {
          min-height: 300px;
@@ -966,4 +1026,9 @@ tbody tr:hover {
  @keyframes fadeIn {
      from { opacity: 0; }
      to { opacity: 1; }
- } 
+ }
+
+/* Add this new rule */
+.card.card-large.allocation-card-popup-active {
+    margin-bottom: 100px; /* Adjust this value as needed */
+} 

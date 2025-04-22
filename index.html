@@ -98,11 +98,12 @@
                     <h2>Target Allocation</h2>
                     <div class="allocation-container">
                         <div id="allocation-chart"></div>
+                        <div class="allocation-info">
+                            <button class="allocation-info-close" aria-label="Close details">&times;</button>
+                            <h3>Selected Asset</h3>
+                            <div class="allocation-value"></div>
+                        </div>
                         <div id="allocation-details">
-                            <div class="allocation-info">
-                                <h3>Selected Asset</h3>
-                                <div class="allocation-value">Click a segment to view details</div>
-                            </div>
                             <div class="allocation-controls">
                                 <button id="view-as-donut" class="active">Donut</button>
                                 <button id="view-as-bar">Bar</button>
@@ -151,7 +152,7 @@
                                         <button class="preset-value-btn" data-value="1500000">$1.5M</button>
                                     </div>
                                 </div>
-                                <div id="calculationResults" style="display: none; background: rgba(18, 21, 28, 0.5); border-radius: var(--border-radius-sm); padding: 15px; border: 1px solid var(--border-color); animation: fadeIn 0.3s ease;">
+                                <div id="calculationResults" style="background: rgba(18, 21, 28, 0.5); border-radius: var(--border-radius-sm); padding: 15px; border: 1px solid var(--border-color);">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                         <h4 style="margin: 0; font-size: 0.9rem;">Allocation Breakdown</h4>
                                         <span id="totalAmount" style="font-weight: 600; color: var(--accent-color);"></span>
@@ -189,7 +190,7 @@
                     <p id="scenario-description">Expected market returns based on historical averages and current conditions.</p>
                     
                     <!-- Dollar Returns Table - Hidden until portfolio value is entered -->
-                    <div id="dollarReturnsSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); animation: fadeIn 0.5s ease;">
+                    <div id="dollarReturnsSection" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
                         <h3 style="font-size: 1rem; color: var(--text-color); margin-bottom: 15px; display: flex; align-items: center;">
                             <i class="fas fa-dollar-sign" style="margin-right: 8px; color: var(--accent-color); font-size: 0.9rem;"></i>
                             Estimated Dollar Returns
@@ -225,7 +226,7 @@
                     <div id="overprice-chart" style="min-height: 380px; width: 100%;"></div>
                     
                     <!-- Dollar Valuation Impact Table - Hidden until portfolio value is entered -->
-                    <div id="desktop-dollar-valuation-section" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); animation: fadeIn 0.5s ease;">
+                    <div id="desktop-dollar-valuation-section" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
                         <h3 style="font-size: 1rem; color: var(--text-color); margin-bottom: 15px; display: flex; align-items: center;">
                             <i class="fas fa-balance-scale" style="margin-right: 8px; color: var(--accent-color); font-size: 0.9rem;"></i>
                             Valuation Impact in Dollars
@@ -418,6 +419,7 @@
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 
