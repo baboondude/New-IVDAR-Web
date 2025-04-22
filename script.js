@@ -1244,9 +1244,21 @@ document.addEventListener('DOMContentLoaded', function() {
             'Money Market': 1.00
         };
         
+        // Function to format number with commas
+        const formatWithCommas = (value) => {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
+        
+        // Function to parse input value with commas
+        const parseInputValue = (inputValue) => {
+            // Remove commas and any non-numeric characters except decimal point
+            const cleanedValue = inputValue.replace(/,/g, '').replace(/[^\d.]/g, '');
+            return parseFloat(cleanedValue);
+        };
+        
         // Function to calculate and display allocation
         const calculatePortfolioAllocation = () => {
-            const portfolioValue = parseFloat(portfolioValueInput.value);
+            const portfolioValue = parseInputValue(portfolioValueInput.value);
             if (isNaN(portfolioValue) || portfolioValue <= 0) {
                 // Hide results if input is invalid
                 calculationResults.style.display = 'none';
@@ -1523,7 +1535,34 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         // Set up event listeners for real-time updates
-        portfolioValueInput.addEventListener('input', calculatePortfolioAllocation);
+        portfolioValueInput.addEventListener('input', function(e) {
+            // Store cursor position
+            const cursorPos = this.selectionStart;
+            const inputLength = this.value.length;
+            
+            // Get unformatted value
+            const unformattedValue = this.value.replace(/,/g, '');
+            
+            // Don't format if empty
+            if (!unformattedValue) {
+                return;
+            }
+            
+            // Only process if it's a valid number input
+            if (/^[0-9]*\.?[0-9]*$/.test(unformattedValue)) {
+                // Format with commas
+                const formattedValue = formatWithCommas(unformattedValue);
+                this.value = formattedValue;
+                
+                // Calculate new cursor position accounting for added commas
+                const newCursorPos = cursorPos + (this.value.length - inputLength);
+                this.setSelectionRange(newCursorPos, newCursorPos);
+            }
+            
+            // Calculate allocation after a short delay
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(calculatePortfolioAllocation, 200);
+        });
         
         // Also update on focus if there's already a value
         portfolioValueInput.addEventListener('focus', function() {
@@ -1544,15 +1583,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add a debounce timer for performance while typing
         let debounceTimer;
-        portfolioValueInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(calculatePortfolioAllocation, 200);
-        });
         
         // Add listeners to update dollar returns when scenarios change
         document.querySelectorAll('#returns-base, #returns-optimistic, #returns-pessimistic').forEach(button => {
             button.addEventListener('click', function() {
-                const portfolioValue = parseFloat(portfolioValueInput.value);
+                const portfolioValue = parseInputValue(portfolioValueInput.value);
                 if (!isNaN(portfolioValue) && portfolioValue > 0) {
                     updateDollarReturnSection(portfolioValue);
                 }
@@ -1564,7 +1599,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.addEventListener('click', function() {
                 // Just delay slightly to allow the chart to update first
                 setTimeout(() => {
-                    const portfolioValue = parseFloat(portfolioValueInput.value);
+                    const portfolioValue = parseInputValue(portfolioValueInput.value);
                     if (!isNaN(portfolioValue) && portfolioValue > 0) {
                         updateDollarValuationSection(portfolioValue);
                     }
@@ -1576,7 +1611,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.preset-value-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const value = this.getAttribute('data-value');
-                portfolioValueInput.value = value;
+                portfolioValueInput.value = formatWithCommas(value);
                 calculatePortfolioAllocation();
             });
         });
