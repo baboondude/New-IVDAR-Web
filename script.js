@@ -1571,6 +1571,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 300);
             });
         });
+
+        // Add event listeners for preset value buttons
+        document.querySelectorAll('.preset-value-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                portfolioValueInput.value = value;
+                calculatePortfolioAllocation();
+            });
+        });
     }
 });
 

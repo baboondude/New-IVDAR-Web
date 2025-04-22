@@ -438,6 +438,31 @@ tbody tr:hover {
 .negative { color: var(--negative-color); font-weight: 600; }
 .muted { color: var(--text-muted-color); font-style: italic; }
 
+/* Preset Value Buttons */
+.preset-value-btn {
+    background: rgba(18, 21, 28, 0.7);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted-color);
+    padding: 6px 12px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.preset-value-btn:hover {
+    background: var(--highlight-color);
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.preset-value-btn:active {
+    transform: translateY(0);
+}
+
 .summary-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
