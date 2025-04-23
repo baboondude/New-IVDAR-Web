@@ -597,6 +597,7 @@ tbody tr:hover {
  .page-header p,
  .summary-item,
  .card {
+    opacity: 1; /* Ensure elements are fully visible */
     /* Removed initial opacity: 0 */
     transition: opacity 0.5s ease, transform 0.5s ease;
  }
