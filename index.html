@@ -11,27 +11,6 @@
     <link rel="shortcut icon" href="images/favicon.ico">
     <link rel="apple-touch-icon" href="images/favicon.png">
     
-    <!-- Mobile Redirection Script -->
-    <script>
-        // Device detection function
-        function isMobileDevice() {
-            return (window.innerWidth <= 768) || 
-                   (navigator.userAgent.match(/Android/i) ||
-                    navigator.userAgent.match(/webOS/i) ||
-                    navigator.userAgent.match(/iPhone/i) ||
-                    navigator.userAgent.match(/iPad/i) ||
-                    navigator.userAgent.match(/iPod/i) ||
-                    navigator.userAgent.match(/BlackBerry/i) ||
-                    navigator.userAgent.match(/Windows Phone/i));
-        }
-        
-        // Redirect to mobile version if on a mobile device
-        // Skip redirection if "desktop=true" is in the URL (to allow users to view desktop version)
-        if (isMobileDevice() && window.location.href.indexOf('desktop=true') === -1) {
-            window.location.href = 'mobile.html';
-        }
-    </script>
-    
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
