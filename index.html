@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-    <div id="loading-screen" class="hidden">
+    <div id="loading-screen">
         <div class="logo">
             <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
             <div class="logo-text">IVDAR</div>
@@ -92,6 +92,13 @@
                  <div class="summary-item">
                     <h3>Pop. SD (Gaussian)</h3>
                     <p id="summary-gauss-sd">--%</p>
+                </div>
+                <!-- Add refresh button and last updated timestamp -->
+                <div style="display: flex; flex-direction: column; align-items: center; margin-left: auto;">
+                    <button id="refreshBtn" data-tooltip="Refresh data from the server">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <span id="lastFetchedTime" style="margin-top: 5px;"></span>
                 </div>
             </section>
 
@@ -350,5 +357,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="script.js" defer></script>
+    <script src="animations.js" defer></script>
 </body>
 </html> 

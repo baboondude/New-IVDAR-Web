@@ -385,7 +385,8 @@ header .date-momentum p {
 
 .card-large {
      grid-column: span 1; /* Default */
-}
+     padding-right: 24px; /* Revert to default padding */
+ }
 @media (min-width: 1200px) {
      .card-large {
          grid-column: span 2;
@@ -394,9 +395,33 @@ header .date-momentum p {
  @media (max-width: 800px) {
      .card-large {
          grid-column: span 1;
+         padding-right: 24px; /* Restore default padding */
      }
      .grid-container {
          grid-template-columns: 1fr;
+     }
+     .allocation-container {
+         display: block;
+     }
+     #allocation-chart {
+         width: 100%;
+     }
+     #allocation-details {
+         max-width: none;
+     }
+     .allocation-info {
+         position: relative;
+         left: auto;
+         top: auto;
+         transform: translateX(-50%) translateY(10px) scale(0.95);
+         margin-top: 15px;
+         width: 95%;
+         max-width: 400px;
+         margin-left: auto;
+         margin-right: auto;
+     }
+     .allocation-info.is-visible {
+         transform: translateX(-50%) translateY(0) scale(1);
      }
  }
 
@@ -408,7 +433,7 @@ table {
 
 th, td {
     text-align: left;
-    padding: 14px 12px;
+    padding: 14px 15px;
     border-bottom: 1px solid rgba(30, 41, 59, 0.6);
     font-size: 0.9em;
     vertical-align: middle;
@@ -597,9 +622,17 @@ tbody tr:hover {
  .page-header p,
  .summary-item,
  .card {
-    opacity: 1; /* Ensure elements are fully visible */
-    /* Removed initial opacity: 0 */
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0; /* Start transparent for fade-in */
+    transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s; /* Delay fade-in slightly */
+ }
+ 
+ /* Style for when the page content is loaded and ready to be shown */
+ body.loaded .page-header h1,
+ body.loaded .page-header p,
+ body.loaded .summary-item,
+ body.loaded .card {
+    opacity: 1;
+    transform: translateY(0); /* Assuming you might want a subtle slide-up */
  }
  
  /* Animation for chart elements */
@@ -607,34 +640,58 @@ tbody tr:hover {
     transition: opacity 0.3s ease-out, transform 0.3s ease-out;
  }
 
- /* Allocation Chart Tooltip Popup Styles */
+ /* Allocation Chart Tooltip Popup Styles - Positioned relative to container now */
+ .allocation-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+ }
+
+ #allocation-chart {
+    width: 100%;
+    height: 280px;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+ }
+
+ #allocation-details {
+    width: 100%;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+ }
+
  .allocation-info {
     position: absolute;
-    width: 220px;
-    background-color: rgba(255, 255, 255, 0.98);
-    color: #333;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    visibility: hidden;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    min-width: 280px;
+    max-width: 420px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 5;
     opacity: 0;
-    transition: visibility 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-    transform: translateY(10px);
-    pointer-events: none;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
  }
 
  .allocation-info.is-visible {
-    visibility: visible;
     opacity: 1;
-    transform: translateY(0);
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
  }
 
  .allocation-info h3 {
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: var(--text-muted-color);
-    font-size: 0.8em;
+    font-size: 0.75em;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     font-weight: 600;
@@ -651,11 +708,13 @@ tbody tr:hover {
     color: var(--text-muted-color);
     cursor: pointer;
     padding: 5px;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
+    z-index: 11;
  }
 
  .allocation-info-close:hover {
     color: var(--text-color);
+    transform: scale(1.1);
  }
 
  .allocation-info-close:focus-visible {
@@ -665,14 +724,15 @@ tbody tr:hover {
  }
 
  .allocation-value {
-    margin-bottom: 10px;
-    font-size: 1.7em;
+    margin-bottom: 12px;
+    font-size: 1.8em;
     font-weight: 700;
     background: linear-gradient(to right, var(--accent-color), var(--secondary-accent));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
+    line-height: 1.2;
  }
 
  .allocation-controls,
@@ -763,11 +823,13 @@ tbody tr:hover {
         flex-direction: column;
     }
     .allocation-info {
+        position: relative;
         left: 50%;
-        width: calc(100% - 44px);
-        max-width: 500px;
-        top: calc(300px + 15px);
+        top: auto;
         transform: translateX(-50%) translateY(10px) scale(0.95);
+        margin-top: 15px;
+        width: 95%;
+        max-width: 400px;
     }
     .allocation-info.is-visible {
         transform: translateX(-50%) translateY(0) scale(1);
@@ -1034,4 +1096,348 @@ tbody tr:hover {
 /* Hide Refresh Button */
 #refreshBtn {
     display: none;
+}
+
+/* ------------- UI Improvements and Loading Indicators ------------- */
+
+/* Loading state for the entire page */
+body.is-loading {
+    cursor: progress;
+}
+
+/* Refresh button state */
+#refreshBtn.is-loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Small spinner for buttons */
+.spinner-sm {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Last fetched timestamp */
+#lastFetchedTime {
+    display: none;
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    text-align: center;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+/* Improve fetch error message appearance */
+#fetch-error-message {
+    background-color: var(--negative-color);
+    color: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius-sm);
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease-in-out;
+    position: relative;
+}
+
+#fetch-error-message p {
+    margin: 0 0 5px 0;
+}
+
+#fetch-error-message p:last-child {
+    margin-bottom: 0;
+}
+
+/* Improve form elements */
+input[type="text"],
+input[type="number"] {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 8px 12px;
+    font-size: 1rem;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    outline: none;
+}
+
+/* Hover effects for interactive elements */
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+button {
+    transition: all 0.2s ease;
+}
+
+button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* More distinct focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Tooltip for better user guidance */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Refresh button specific styles */
+#refreshBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#refreshBtn:hover:not(:disabled) {
+    background-color: #2563eb; /* Slightly darker blue */
+}
+
+#refreshBtn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+/* Toast notification */
+.toast-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: var(--border-radius-sm);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: toastFadeIn 0.3s ease forwards;
+}
+
+.toast-message.success {
+    background-color: #10B981; /* Green */
+}
+
+.toast-message.error {
+    background-color: var(--negative-color);
+}
+
+.toast-message.hide {
+    animation: toastFadeOut 0.3s ease forwards;
+}
+
+@keyframes toastFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .summary-section {
+        flex-wrap: wrap;
+    }
+    
+    .summary-item {
+        width: calc(50% - 10px);
+        margin-bottom: 10px;
+    }
+    
+    /* Adjustments for refresh button container */
+    .summary-section > div:last-child {
+        width: 100%;
+        margin-top: 10px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* Make tables responsive */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    /* Smaller font sizes on mobile */
+    .card h2 {
+        font-size: 1.2rem;
+    }
+    
+    .summary-item h3 {
+        font-size: 0.9rem;
+    }
+    
+    .summary-item p {
+        font-size: 1.2rem;
+    }
+    
+    /* Better spacing for cards on mobile */
+    .card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    /* Fix toast position on mobile */
+    .toast-message {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        width: auto;
+        max-width: none;
+        transform: translateY(20px);
+    }
+}
+
+/* Make form elements more touch-friendly on mobile */
+@media (max-width: 480px) {
+    input[type="text"],
+    input[type="number"],
+    button,
+    .preset-value-btn {
+        padding: 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    /* Stack form elements */
+    #calculateBtn {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    /* Make allocation controls full width */
+    .allocation-controls button {
+        flex: 1;
+    }
+    
+    /* Fix spacing in portfolio calculator */
+    .portfolio-calculator-input {
+        flex-direction: column;
+    }
+}
+
+/* Valuation Chart Explanation */
+.chart-explanation {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.color-dot.overpriced {
+    background-color: #ef4444;
+}
+
+.color-dot.underpriced {
+    background-color: #22c55e;
+}
+
+/* Enhanced tooltip styling for valuation chart */
+#overprice-chart .apexcharts-tooltip {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+}
+
+#overprice-chart .apexcharts-tooltip-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Improve bar appearance */
+#overprice-chart .apexcharts-bar-series rect {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Make chart legend more clear */
+#overprice-chart .apexcharts-legend-series {
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#overprice-chart .apexcharts-legend-series:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+#overprice-chart .apexcharts-legend-text {
+    font-weight: 500;
 } 
