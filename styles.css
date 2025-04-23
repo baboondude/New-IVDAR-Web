@@ -1023,12 +1023,12 @@ tbody tr:hover {
     to { transform: rotate(360deg); }
 }
 
-#loading-screen.hidden {
+/* We're now using display: none directly in JS instead of this class */
+/* #loading-screen.hidden {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-}
-/* --- End Loading Screen Styles --- */
+} */
 
 /* Hide Refresh Button */
 #refreshBtn {
