@@ -1070,4 +1070,9 @@ tbody tr:hover {
     visibility: hidden;
     pointer-events: none;
 }
-/* --- End Loading Screen Styles --- */ 
+/* --- End Loading Screen Styles --- */
+
+/* Hide Refresh Button */
+#refreshBtn {
+    display: none;
+} 
