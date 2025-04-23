@@ -24,6 +24,7 @@ app = FastAPI(title="IVDAR Sheet API")
 origins = [
     "http://localhost:5500",  # Allow Five Server default port
     "http://127.0.0.1:5500", # Allow Five Server default IP
+    "https://enchanting-blancmange-ab1cd9.netlify.app", # Added your Netlify site URL
     # You could add other origins here if needed, e.g., your deployed frontend URL
 ]
 
