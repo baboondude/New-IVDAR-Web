@@ -591,6 +591,14 @@ tbody tr:hover {
  .apexcharts-grid line {
      stroke: rgba(30, 41, 59, 0.3) !important;
  }
+  
+ /* --- Initial State for Page Load Animation --- */
+ .page-header h1,
+ .page-header p,
+ .summary-item,
+ .card {
+     opacity: 0; /* Start hidden, will be faded in by JS */
+ }
  
  /* Chart animations */
  .apexcharts-canvas .apexcharts-element-shown {
