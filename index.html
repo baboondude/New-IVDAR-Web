@@ -68,10 +68,10 @@
             </ul>
             <div class="user-menu">
                 <div class="date-badge">
-                    <i class="far fa-calendar-alt"></i> Sunday 4/13/2025
+                    <i class="far fa-calendar-alt"></i> <span id="badge-date">--</span>
                 </div>
                 <div class="momentum-badge">
-                    <i class="fas fa-chart-bar"></i> Momentum: 24.77
+                    <i class="fas fa-chart-bar"></i> <span id="badge-momentum">Momentum: --</span>
                 </div>
             </div>
         </div>
@@ -81,7 +81,12 @@
     <div class="page-header">
         <div class="container">
             <h1 class="page-title"><span class="bold-first-letter">I</span>ntrinsic <span class="bold-first-letter">V</span>alue <span class="bold-first-letter">D</span>ynamic <span class="bold-first-letter">A</span>sset <span class="bold-first-letter">R</span>eallocation</h1>
-            <p class="page-subtitle">An Enlightened Approach to Long Term Investing</p>
+            <div class="subtitle-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px;">
+                <p class="page-subtitle" style="margin: 0;">An Enlightened Approach to Long Term Investing</p>
+                <button id="refreshBtn" class="refresh-button" style="padding: 5px 12px; font-size: 0.9rem; background-color: var(--accent-color-secondary); color: var(--text-color); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer; transition: background-color 0.2s ease;">
+                    <i class="fas fa-sync-alt" style="margin-right: 5px;"></i> Refresh
+                </button>
+            </div>
         </div>
     </div>
 
@@ -90,19 +95,19 @@
             <section class="summary-section">
                 <div class="summary-item">
                     <h3>Target Stock Total</h3>
-                    <p>71.87%</p>
+                    <p id="summary-target-total">--%</p>
                 </div>
                 <div class="summary-item">
                     <h3>Implied Allocation</h3>
-                    <p>74.78%</p>
+                    <p id="summary-implied">--%</p>
                 </div>
                  <div class="summary-item">
                     <h3>Pop. Mean (Gaussian)</h3>
-                    <p>0.41%</p>
+                    <p id="summary-gauss-mean">--%</p>
                 </div>
                  <div class="summary-item">
                     <h3>Pop. SD (Gaussian)</h3>
-                    <p>24.85%</p>
+                    <p id="summary-gauss-sd">--%</p>
                 </div>
             </section>
 
@@ -124,15 +129,15 @@
                             <div class="allocation-stats">
                                 <div class="stat-item">
                                     <span class="stat-label">Stock Total:</span>
-                                    <span class="stat-value" id="stock-total">71.87%</span>
+                                    <span class="stat-value" id="stat-stock-total">--%</span>
                                 </div>
                                 <div class="stat-item">
                                     <span class="stat-label">Bonds:</span>
-                                    <span class="stat-value">3.57%</span>
+                                    <span class="stat-value" id="stat-bonds">--%</span>
                                 </div>
                                 <div class="stat-item">
                                     <span class="stat-label">Cash:</span>
-                                    <span class="stat-value">24.67%</span>
+                                    <span class="stat-value" id="stat-cash">--%</span>
                                 </div>
                             </div>
                             
@@ -274,37 +279,8 @@
                                 <th>Change</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>SP500</td>
-                                <td>5,268.05</td>
-                                <td>5,363.36</td>
-                                <td class="positive">1.81%</td>
-                            </tr>
-                            <tr>
-                                <td>NASDAQ</td>
-                                <td>16,367.31</td>
-                                <td>16,724.46</td>
-                                <td class="positive">2.06%</td>
-                            </tr>
-                            <tr>
-                                <td>International (IXUS)</td>
-                                <td>$65.71</td>
-                                <td>$67.47</td>
-                                <td class="positive">2.68%</td>
-                            </tr>
-                             <tr>
-                                <td>Bonds (BND)</td>
-                                <td>$72.10</td>
-                                <td>$72.02</td>
-                                <td class="negative">-0.11%</td>
-                            </tr>
-                            <tr>
-                                <td>Money Market</td>
-                                <td>$1.00</td>
-                                <td>$1.00</td>
-                                <td>0.00%</td>
-                            </tr>
+                        <tbody id="daily-table-body">
+                            <!-- Rows will be populated by script.js -->
                         </tbody>
                     </table>
                 </div>
@@ -322,47 +298,8 @@
                                 <th>Months to Even</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>SP500</td>
-                                <td>4,570.69</td>
-                                <td class="negative">17.34%</td>
-                                <td>29.08%</td>
-                                <td>9/18/2027</td>
-                                <td>29.21</td>
-                            </tr>
-                            <tr>
-                                <td>NASDAQ</td>
-                                <td>15,639.76</td>
-                                <td class="negative">6.94%</td>
-                                <td>49.19%</td>
-                                <td>12/23/2025</td>
-                                <td>8.38</td>
-                            </tr>
-                            <tr>
-                                <td>International (IXUS)</td>
-                                <td>$66.96</td>
-                                <td class="negative">0.77%</td>
-                                <td class="negative">4.97%</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                             <tr>
-                                <td>Bonds (BND)</td>
-                                <td>$1,891.06</td>
-                                <td class="positive">-15.24%</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>Money Market</td>
-                                <td>$1.00</td>
-                                <td>0%</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
+                        <tbody id="valuation-detail-body">
+                            <!-- Rows will be populated by script.js -->
                         </tbody>
                     </table>
                  </div>
