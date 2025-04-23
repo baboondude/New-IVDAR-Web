@@ -43,3 +43,6 @@ This command does the same thing as the standard mode command, but with the addi
 The key difference is the `--reload` flag. Use the **reload mode (`--reload`)** during development, as it saves you the effort of manually restarting the server every time you modify the backend code. Use the **standard mode** (without `--reload`) for more stable environments or when you are not actively changing the backend code, as it avoids the overhead of file monitoring.
 
 Once the server is running, the API will typically be accessible at `http://localhost:8000` (or `http://127.0.0.1:8000`). The frontend application (`script.js`) is configured to fetch data from this address. 
+
+IVDAR Sheet API
+http://127.0.0.1:8000/docs#/default/get_assets_assets_get
