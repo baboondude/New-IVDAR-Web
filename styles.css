@@ -592,418 +592,368 @@ tbody tr:hover {
      stroke: rgba(30, 41, 59, 0.3) !important;
  }
   
- /* --- Initial State for Page Load Animation --- */
- .page-header h1,
+ /* Page Load Animation Styles */
+ .page-header h1, 
  .page-header p,
  .summary-item,
  .card {
-     opacity: 0; /* Start hidden, will be faded in by JS */
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
  }
  
- /* Chart animations */
+ /* Animation for chart elements */
  .apexcharts-canvas .apexcharts-element-shown {
-     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
- }
- 
- /* Donut center text */
- .apexcharts-datalabels-group text {
-     fill: var(--text-color) !important;
-     font-weight: 700 !important;
-     font-size: 18px !important;
- }
- 
- /* Bar chart styling */
- .apexcharts-bar-area {
-     stroke-width: 0 !important;
-     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
- }
- 
- .apexcharts-bar-area:hover {
-     filter: brightness(1.2);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
  }
 
- /* Target Allocation Interactive Styles */
- .allocation-container {
-     display: flex;
-     flex-wrap: wrap;
-     gap: 24px;
-     align-items: stretch;
-     position: relative;
- }
-
- #allocation-chart {
-     flex: 1;
-     min-width: 280px;
-     height: 360px;
- }
-
- #allocation-details {
-     flex: 1;
-     min-width: 250px;
-     background: var(--card-bg-gradient);
-     border-radius: var(--border-radius);
-     padding: 22px;
-     border: var(--card-border);
-     display: flex;
-     flex-direction: column;
-     justify-content: space-between;
-     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
- }
-
+ /* Allocation Chart Tooltip Popup Styles */
  .allocation-info {
-     position: absolute;
-     top: calc(360px + 15px);
-     left: 25%;
-     transform: translateX(-50%) translateY(10px) scale(0.95);
-     z-index: 10;
-     width: calc(50% - 30px);
-     max-width: 400px;
-     background: var(--card-bg-gradient);
-     border-radius: var(--border-radius-sm);
-     padding: 20px;
-     padding-top: 30px;
-     border: var(--card-border);
-     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
-     text-align: center;
-     opacity: 0;
-     visibility: hidden;
-     transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-     pointer-events: none;
-     margin-top: 0;
+    position: absolute;
+    width: 220px;
+    background-color: rgba(255, 255, 255, 0.98);
+    color: #333;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(10px);
+    pointer-events: none;
  }
 
  .allocation-info.is-visible {
-     opacity: 1;
-     visibility: visible;
-     transform: translateX(-50%) translateY(0) scale(1);
-     pointer-events: auto;
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
  }
 
  .allocation-info h3 {
-     margin-top: 0;
-     margin-bottom: 10px;
-     color: var(--text-muted-color);
-     font-size: 0.8em;
-     text-transform: uppercase;
-     letter-spacing: 0.8px;
-     font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-muted-color);
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
  }
 
  .allocation-info-close {
-     position: absolute;
-     top: 8px;
-     right: 8px;
-     background: none;
-     border: none;
-     font-size: 1.6rem;
-     line-height: 1;
-     color: var(--text-muted-color);
-     cursor: pointer;
-     padding: 5px;
-     transition: color 0.2s ease;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text-muted-color);
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s ease;
  }
 
  .allocation-info-close:hover {
-     color: var(--text-color);
+    color: var(--text-color);
  }
 
  .allocation-info-close:focus-visible {
-     outline: 2px solid var(--accent-color);
-     outline-offset: 1px;
-     border-radius: 4px;
+    outline: 2px solid var(--accent-color);
+    outline-offset: 1px;
+    border-radius: 4px;
  }
 
  .allocation-value {
-     margin-bottom: 10px;
-     font-size: 1.7em;
-     font-weight: 700;
-     background: linear-gradient(to right, var(--accent-color), var(--secondary-accent));
-     -webkit-background-clip: text;
-     background-clip: text;
-     -webkit-text-fill-color: transparent;
-     letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    font-size: 1.7em;
+    font-weight: 700;
+    background: linear-gradient(to right, var(--accent-color), var(--secondary-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
  }
 
  .allocation-controls,
  .scenario-controls {
-     display: flex;
-     justify-content: center;
-     gap: 10px;
-     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
  }
 
  .allocation-controls button,
  .scenario-controls button {
-     background: rgba(18, 21, 28, 0.7);
-     border: 1px solid var(--border-color);
-     color: var(--text-muted-color);
-     padding: 8px 14px;
-     border-radius: 20px;
-     cursor: pointer;
-     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-     font-family: var(--font-family);
-     font-size: 0.85em;
-     font-weight: 500;
-     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: rgba(18, 21, 28, 0.7);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted-color);
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--font-family);
+    font-size: 0.85em;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
  }
 
  .allocation-controls button:hover,
  .scenario-controls button:hover {
-     background: var(--highlight-color);
-     color: var(--text-color);
-     border-color: var(--accent-color);
-     transform: translateY(-2px);
-     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: var(--highlight-color);
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
  }
 
  .allocation-controls button.active,
  .scenario-controls button.active {
-     background: var(--accent-color);
-     color: #fff;
-     border-color: var(--accent-color);
-     font-weight: 600;
-     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
  }
 
  .allocation-stats {
-     background: rgba(18, 21, 28, 0.6);
-     border-radius: var(--border-radius-sm);
-     padding: 16px;
-     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-     border: 1px solid var(--border-color);
+    background: rgba(18, 21, 28, 0.6);
+    border-radius: var(--border-radius-sm);
+    padding: 16px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
  }
 
  .stat-item {
-     display: flex;
-     justify-content: space-between;
-     margin-bottom: 10px;
-     padding-bottom: 10px;
-     border-bottom: 1px solid var(--border-color);
-     font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9em;
  }
 
  .stat-item:last-child {
-     margin-bottom: 0;
-     padding-bottom: 0;
-     border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
  }
 
  .stat-label {
-     color: var(--text-muted-color);
+    color: var(--text-muted-color);
  }
 
  .stat-value {
-     font-weight: 600;
+    font-weight: 600;
  }
 
  /* Scenario description */
  #scenario-description {
-     font-size: 0.85em;
-     color: var(--text-muted-color);
-     text-align: center;
-     margin-top: 12px;
-     min-height: 2.5em;
-     font-style: italic;
-     padding: 0 10px;
+    font-size: 0.85em;
+    color: var(--text-muted-color);
+    text-align: center;
+    margin-top: 12px;
+    min-height: 2.5em;
+    font-style: italic;
+    padding: 0 10px;
  }
 
  @media (max-width: 1100px) {
-     .allocation-container {
-         flex-direction: column;
-     }
-     .allocation-info {
-         left: 50%;
-         width: calc(100% - 44px);
-         max-width: 500px;
-         top: calc(300px + 15px);
-         transform: translateX(-50%) translateY(10px) scale(0.95);
-     }
-     .allocation-info.is-visible {
-         transform: translateX(-50%) translateY(0) scale(1);
-     }
-     #allocation-chart {
-         min-height: 300px;
-         height: 300px;
-     }
+    .allocation-container {
+        flex-direction: column;
+    }
+    .allocation-info {
+        left: 50%;
+        width: calc(100% - 44px);
+        max-width: 500px;
+        top: calc(300px + 15px);
+        transform: translateX(-50%) translateY(10px) scale(0.95);
+    }
+    .allocation-info.is-visible {
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+    #allocation-chart {
+        min-height: 300px;
+        height: 300px;
+    }
  }
  
  /* Footer styles */
  .site-footer {
-     background: var(--card-bg-gradient);
-     border-top: 1px solid var(--border-color);
-     padding: 60px 0 30px;
-     margin-top: 50px;
+    background: var(--card-bg-gradient);
+    border-top: 1px solid var(--border-color);
+    padding: 60px 0 30px;
+    margin-top: 50px;
  }
  
  .footer-content {
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: space-between;
-     margin-bottom: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 40px;
  }
  
  .footer-logo {
-     flex: 0 0 300px;
-     margin-bottom: 30px;
+    flex: 0 0 300px;
+    margin-bottom: 30px;
  }
  
  .footer-tagline {
-     color: var(--text-muted-color);
-     margin-top: 15px;
-     font-size: 0.9rem;
-     padding-right: 20px;
+    color: var(--text-muted-color);
+    margin-top: 15px;
+    font-size: 0.9rem;
+    padding-right: 20px;
  }
  
  .footer-links {
-     display: flex;
-     flex-wrap: wrap;
-     gap: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
  }
  
  .footer-section h3 {
-     color: var(--text-color);
-     font-size: 1rem;
-     font-weight: 600;
-     margin-bottom: 20px;
-     position: relative;
-     display: inline-block;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    position: relative;
+    display: inline-block;
  }
  
  .footer-section h3::after {
-     content: '';
-     position: absolute;
-     left: 0;
-     bottom: -8px;
-     height: 2px;
-     width: 30px;
-     background: var(--accent-color);
-     border-radius: 2px;
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    height: 2px;
+    width: 30px;
+    background: var(--accent-color);
+    border-radius: 2px;
  }
  
  .footer-section ul {
-     list-style: none;
-     padding: 0;
-     margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
  }
  
  .footer-section ul li {
-     margin-bottom: 12px;
+    margin-bottom: 12px;
  }
  
  .footer-section ul li a {
-     color: var(--text-muted-color);
-     text-decoration: none;
-     transition: color 0.2s ease;
-     font-size: 0.9rem;
+    color: var(--text-muted-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-size: 0.9rem;
  }
  
  .footer-section ul li a:hover {
-     color: var(--accent-color);
+    color: var(--accent-color);
  }
  
  .footer-bottom {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     padding-top: 30px;
-     border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
  }
  
  .copyright {
-     color: var(--text-muted-color);
-     font-size: 0.85rem;
+    color: var(--text-muted-color);
+    font-size: 0.85rem;
  }
  
  .social-links {
-     display: flex;
-     gap: 16px;
+    display: flex;
+    gap: 16px;
  }
  
  .social-links a {
-     color: var(--text-muted-color);
-     font-size: 1.2rem;
-     transition: color 0.2s ease;
+    color: var(--text-muted-color);
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
  }
  
  .social-links a:hover {
-     color: var(--accent-color);
+    color: var(--accent-color);
  }
  
  @media (max-width: 768px) {
-     .footer-content {
-         flex-direction: column;
-     }
-     
-     .footer-logo, .footer-links {
-         flex: 0 0 100%;
-     }
-     
-     .footer-bottom {
-         flex-direction: column;
-         gap: 15px;
-         text-align: center;
-     }
+    .footer-content {
+        flex-direction: column;
+    }
+    
+    .footer-logo, .footer-links {
+        flex: 0 0 100%;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
  }
  
  /* --- Accessibility --- */
  a:focus-visible,
  button:focus-visible,
  .menu-toggle:focus-visible {
-     outline: 2px solid var(--accent-color);
-     outline-offset: 2px;
-     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); /* Subtle focus ring */
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); /* Subtle focus ring */
  }
  
  /* Focus styles specifically for nav links */
  .nav-links li a:focus-visible {
-     color: var(--accent-color);
+    color: var(--accent-color);
  }
  
  /* Focus style for allocation buttons */
  .allocation-controls button:focus-visible,
  .scenario-controls button:focus-visible {
-     border-color: var(--accent-color);
+    border-color: var(--accent-color);
  }
 
  /* Allocation Details Tags Styling (Moved from JS) */
  .allocation-detail-text {
-     font-size: 0.85rem;
-     margin-top: 8px;
-     color: var(--text-muted-color);
-     font-weight: normal;
-     line-height: 1.4;
-     /* Override potential gradient text styles */
-     -webkit-text-fill-color: currentColor;
-     background-clip: initial;
-     background: none;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    color: var(--text-muted-color);
+    font-weight: normal;
+    line-height: 1.4;
+    /* Override potential gradient text styles */
+    -webkit-text-fill-color: currentColor;
+    background-clip: initial;
+    background: none;
  }
  
  .allocation-metadata {
-     display: flex;
-     gap: 8px;
-     flex-wrap: wrap;
-     margin-top: 15px;
-     justify-content: center;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    justify-content: center;
  }
  
  .tag {
-     display: inline-block;
-     padding: 4px 10px;
-     border-radius: 20px;
-     font-size: 0.7rem;
-     font-weight: 600;
-     color: #fff; /* White text generally works best */
-     background: var(--border-color); /* Default background */
-     -webkit-text-fill-color: currentColor; /* Override potential gradient */
-     background-clip: initial;
-     letter-spacing: 0.5px;
-     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-     text-transform: capitalize; /* Capitalize risk levels */
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #fff; /* White text generally works best */
+    background: var(--border-color); /* Default background */
+    -webkit-text-fill-color: currentColor; /* Override potential gradient */
+    background-clip: initial;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-transform: capitalize; /* Capitalize risk levels */
  }
  
  .horizon-tag {
-     background: var(--accent-color);
-     opacity: 0.9;
+    background: var(--accent-color);
+    opacity: 0.9;
  }
  
  /* Risk Tag Colors */
@@ -1027,8 +977,8 @@ tbody tr:hover {
  
  /* Animation Keyframes */
  @keyframes fadeIn {
-     from { opacity: 0; }
-     to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
  }
 
 /* Add this new rule */
