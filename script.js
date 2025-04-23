@@ -1140,6 +1140,62 @@ function updateAllocationDetails(index) {
     document.getElementById('stock-total').textContent = stockTotal.toFixed(2) + '%';
 }
 
+// Function to animate a number counting up to a target value
+function animateNumberCounter(element, targetValue, duration = 1200, isPercentage = true) {
+    // Parse the target value (removing % or $ sign if present)
+    let target;
+    let isDollar = false;
+    
+    if (typeof targetValue === 'string') {
+        isDollar = targetValue.includes('$');
+        target = parseFloat(targetValue.replace(/[$,%]/g, '').replace(/,/g, ''));
+    } else {
+        target = targetValue;
+    }
+    
+    const startTime = performance.now();
+    const startValue = 0;
+    
+    // If the target isn't a valid number, don't animate
+    if (isNaN(target)) return;
+    
+    // Use requestAnimationFrame for smooth animation
+    function updateNumber(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        
+        if (elapsedTime < duration) {
+            // Calculate the current value using easeOutQuad easing function
+            const progress = elapsedTime / duration;
+            const easedProgress = 1 - (1 - progress) * (1 - progress); // Ease out quad
+            const currentValue = startValue + (target - startValue) * easedProgress;
+            
+            // Format appropriately based on the type (percentage, dollar, or plain number)
+            if (isPercentage && !isDollar) {
+                element.textContent = currentValue.toFixed(2) + '%';
+            } else if (isDollar) {
+                // Format as currency with commas
+                element.textContent = '$' + formatNumberWithCommas(currentValue.toFixed(2));
+            } else {
+                element.textContent = currentValue.toFixed(2);
+            }
+            
+            requestAnimationFrame(updateNumber);
+        } else {
+            // Ensure the final value is exactly the target by setting the original text
+            element.textContent = typeof targetValue === 'string' ? targetValue : (
+                isPercentage ? target.toFixed(2) + '%' : target.toFixed(2)
+            );
+        }
+    }
+    
+    requestAnimationFrame(updateNumber);
+}
+
+// Helper function to format numbers with commas
+function formatNumberWithCommas(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Initialize charts after DOM content loaded
 document.addEventListener('DOMContentLoaded', function() {
     // --- Initial Setup for Animations & Loading Screen ---
@@ -1832,21 +1888,99 @@ document.addEventListener('DOMContentLoaded', function() {
     }, '-=350'); // Adjusted offset timing
 
     // --- Loading Screen Logic ---
-    window.addEventListener('load', () => {
-        if (loadingScreen) {
-            // Start fade out animation for loading screen
-            loadingScreen.classList.add('hidden');
-
-            // Wait for the fade-out transition to finish (matches CSS transition duration)
-            setTimeout(() => {
-                // Remove loading screen from DOM (optional, but cleaner)
-                // loadingScreen.remove(); 
+    window.addEventListener('load', function() {
+        // Hide loading screen
+        setTimeout(function() {
+            document.getElementById('loading-screen').classList.add('hidden');
+            
+            // Create a staggered sequence of animations
+            const animationSequence = () => {
+                // Step 1: Start the main anime.js timeline
+                tl.play();
                 
-                // Start the main content animations now
-                tl.play(); 
-            }, 600); // Match the 0.6s transition duration in CSS
-        }
+                // Step 2: After a brief delay, animate the summary percentages
+                setTimeout(() => {
+                    const summaryItems = document.querySelectorAll('.summary-item p');
+                    summaryItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            const targetValue = item.textContent;
+                            item.textContent = '0.00%'; // Start at zero
+                            animateNumberCounter(item, targetValue, 1500 + (index * 150));
+                        }, 100 * index);
+                    });
+                }, 300);
+                
+                // Step 3: Slightly after, animate stock total
+                setTimeout(() => {
+                    const stockTotal = document.getElementById('stock-total');
+                    if (stockTotal) {
+                        const targetValue = stockTotal.textContent;
+                        stockTotal.textContent = '0.00%';
+                        animateNumberCounter(stockTotal, targetValue, 1800);
+                    }
+                }, 600);
+                
+                // Step 4: Finally, animate all table values with cascading effect
+                setTimeout(() => {
+                    animateTablePercentages();
+                }, 800);
+            };
+            
+            // Start the animation sequence
+            animationSequence();
+            
+        }, 800); // Same delay as your existing code or adjust as needed
     });
+
+    // Function to animate percentage values in tables
+    function animateTablePercentages() {
+        // Find all table cells with percentage or dollar values
+        const tableCells = document.querySelectorAll('td');
+        let animationDelay = 0;
+        
+        // Group cells by table for more ordered animation
+        const tables = document.querySelectorAll('table');
+        
+        tables.forEach((table, tableIndex) => {
+            const cells = table.querySelectorAll('td');
+            
+            cells.forEach((cell, cellIndex) => {
+                const text = cell.textContent.trim();
+                
+                // Check if the cell contains a percentage or dollar value
+                if ((text.includes('%') || text.includes('$')) && !text.includes('-')) {
+                    // Skip cells with '-' placeholder
+                    if (text === '-') return;
+                    
+                    // Save original class to preserve styling (positive/negative)
+                    const originalClass = cell.className;
+                    
+                    // Save the target value
+                    const targetValue = text;
+                    
+                    // Reset to 0% or $0.00
+                    if (text.includes('%')) {
+                        cell.textContent = '0.00%';
+                    } else if (text.includes('$')) {
+                        cell.textContent = '$0.00';
+                    }
+                    
+                    // Ensure the class is preserved
+                    cell.className = originalClass;
+                    
+                    // Calculate delay - stagger by table and cell
+                    const baseDelay = 300 + (tableIndex * 200);
+                    const rowDelay = Math.floor(cellIndex / table.rows[0].cells.length) * 100;
+                    const cellDelay = (cellIndex % table.rows[0].cells.length) * 50;
+                    const totalDelay = baseDelay + rowDelay + cellDelay;
+                    
+                    setTimeout(() => {
+                        animateNumberCounter(cell, targetValue, 1500, text.includes('%'));
+                    }, totalDelay);
+                }
+            });
+        });
+    }
 
     // Removed the animation for .allocation-info h3/value from the main timeline
     // as the popup is hidden initially. Content animation is handled in updateAllocationDetails.
