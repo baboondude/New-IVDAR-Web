@@ -17,6 +17,28 @@
     --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1); /* Multi-layered shadow */
     --card-border: 1px solid rgba(255, 255, 255, 0.03); /* Almost invisible border */
     --nav-height: 70px;
+
+    /* Chart Palette */
+    --chart-color-1: #3B82F6; /* Blue-500 */
+    --chart-color-2: #60A5FA; /* Blue-400 */
+    --chart-color-3: #FBBF24; /* Amber-400 */
+    --chart-color-4: #8B5CF6; /* Purple-500 */
+    --chart-color-5: #10B981; /* Emerald-500 */
+
+    /* Chart Palette - Darker Shades for Gradients */
+    --chart-color-1-dark: #2563EB; /* Blue-600 */
+    --chart-color-2-dark: #3B82F6; /* Blue-500 */
+    --chart-color-3-dark: #F59E0B; /* Amber-500 */
+    --chart-color-4-dark: #7C3AED; /* Purple-600 */
+    --chart-color-5-dark: #059669; /* Emerald-600 */
+
+    /* Tooltip Colors */
+    --tooltip-bg-color: rgba(31, 41, 55, 0.85); /* Gray-800 with opacity */
+    --tooltip-border-color: #6B7280;           /* Gray-500 */
+    --tooltip-text-color: #F3F4F6;             /* Gray-100 */
+
+    /* Legend Colors */
+    --legend-hover-color: #FFFFFF;             /* White */
 }
 
 /* Navigation */
@@ -32,6 +54,7 @@
     z-index: 1000;
     display: flex;
     align-items: center;
+    box-shadow: 0 2px 12px 0 rgba(59, 130, 246, 0.10);
 }
 
 .navbar-container {
@@ -104,34 +127,6 @@
     gap: 16px;
 }
 
-.date-badge {
-    background: rgba(18, 21, 28, 0.7);
-    padding: 8px 14px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.9rem;
-    color: var(--text-muted-color);
-    border: 1px solid var(--border-color);
-}
-
-.date-badge i {
-    margin-right: 8px;
-    color: var(--accent-color);
-}
-
-.momentum-badge {
-    background: rgba(18, 21, 28, 0.7);
-    padding: 8px 14px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--accent-color);
-    border: 1px solid var(--border-color);
-}
-
-.momentum-badge i {
-    margin-right: 8px;
-}
-
 /* Mobile menu toggle */
 .menu-toggle {
     display: none;
@@ -189,9 +184,11 @@
     }
     
     .user-menu {
-        flex-direction: column;
+        position: static;
+        transform: none;
+        flex-direction: row;
+        margin-left: auto;
         gap: 10px;
-        align-items: flex-end;
     }
     
     .page-title {
@@ -204,6 +201,30 @@
     
     .bold-first-letter {
         font-size: 1em;
+    }
+}
+
+@media (max-width: 768px) {
+    .user-menu {
+        position: static;
+        transform: none;
+        flex-direction: row;
+        margin-left: auto;
+        gap: 10px;
+    }
+    .date-badge, .momentum-badge, #refreshBtn, #lastFetchedTime {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+    #lastFetchedTime {
+         font-size: 0.75rem;
+    }
+    .refresh-container-sticky {
+        padding: 6px 0;
+    }
+    .refresh-content {
+        padding: 0 15px;
+        gap: 10px;
     }
 }
 
@@ -325,15 +346,16 @@ header .date-momentum p {
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-    gap: 25px;
+    /* Force a single column layout */
+    grid-template-columns: 1fr;
+    gap: 25px; /* Keep the gap */
 }
 
 .card {
     background: var(--card-bg-gradient);
     border-radius: var(--border-radius);
     padding: 24px;
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--box-shadow), 0 0 16px 0 rgba(59, 130, 246, 0.10);
     border: var(--card-border);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1), margin-bottom 0.35s ease-out;
     position: relative;
@@ -356,7 +378,7 @@ header .date-momentum p {
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 24px 2px rgba(59, 130, 246, 0.18);
 }
 
 .card h2 {
@@ -384,12 +406,15 @@ header .date-momentum p {
 }
 
 .card-large {
-     grid-column: span 1; /* Default */
+     /* Ensure it only spans one column by default */
+     grid-column: span 1;
      padding-right: 24px; /* Revert to default padding */
  }
 @media (min-width: 1200px) {
      .card-large {
-         grid-column: span 2;
+         /* Remove the rule that makes it span multiple columns */
+         /* grid-column: span 2; */
+         grid-column: span 1; /* Explicitly set to 1 span */
      }
 }
  @media (max-width: 800px) {
@@ -483,6 +508,7 @@ tbody tr:hover {
     color: var(--text-color);
     border-color: var(--accent-color);
     transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px 2px rgba(59, 130, 246, 0.18);
 }
 
 .preset-value-btn:active {
@@ -505,12 +531,12 @@ tbody tr:hover {
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--box-shadow), 0 0 16px 0 rgba(59, 130, 246, 0.10);
 }
 
 .summary-item:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 24px 2px rgba(59, 130, 246, 0.18);
 }
 
 .summary-item::after {
@@ -551,7 +577,7 @@ tbody tr:hover {
     color: var(--text-color) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: var(--border-radius-sm) !important;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3), 0 0 12px 2px rgba(59, 130, 246, 0.15) !important;
     font-family: var(--font-family) !important;
     backdrop-filter: blur(8px);
 }
@@ -650,11 +676,42 @@ tbody tr:hover {
  }
 
  #allocation-chart {
+    position: relative;
     width: 100%;
-    height: 280px;
-    margin: 0 auto;
-    transition: opacity 0.3s ease;
+    max-width: 700px;
+    height: 420px;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    margin: 0 auto 20px auto;
  }
+
+ #allocation-chart::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    /* Remove border and box-shadow, use a radial gradient instead */
+    background: none;
+ }
+
+ #allocation-chart.shrunk {
+    transform: scale(0.82);
+    box-shadow: 0 2px 12px 0 rgba(59, 130, 246, 0.10);
+    filter: blur(0.5px) brightness(0.96);
+ }
+
+ #allocation-chart.expanded {
+    transform: scale(1.08);
+    box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.18);
+    filter: none;
+ }
+
+ /* Title Glow Effects */
 
  #allocation-details {
     width: 100%;
@@ -664,27 +721,31 @@ tbody tr:hover {
 
  .allocation-info {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
+    top: 0;
+    right: 0;
+    left: auto;
+    transform: none;
+    margin-top: 24px;
+    margin-right: 32px;
+    width: auto;
+    max-width: 420px;
+    min-width: 280px;
+    z-index: 5;
+    opacity: 0;
+    visibility: hidden;
     background: var(--card-bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 20px;
-    min-width: 280px;
-    max-width: 420px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    z-index: 5;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
  }
 
  .allocation-info.is-visible {
     opacity: 1;
     visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
+    transform: none;
  }
 
  .allocation-info h3 {
@@ -764,7 +825,7 @@ tbody tr:hover {
     color: var(--text-color);
     border-color: var(--accent-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px 2px rgba(59, 130, 246, 0.18);
  }
 
  .allocation-controls button.active,
@@ -779,16 +840,19 @@ tbody tr:hover {
  .allocation-stats {
     background: rgba(18, 21, 28, 0.6);
     border-radius: var(--border-radius-sm);
-    padding: 16px;
+    padding: 20px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 500px;
+    margin: 0 auto;
  }
 
  .stat-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
     border-bottom: 1px solid var(--border-color);
     font-size: 0.9em;
  }
@@ -819,15 +883,14 @@ tbody tr:hover {
  }
 
  @media (max-width: 1100px) {
-    .allocation-container {
-        flex-direction: column;
-    }
     .allocation-info {
         position: relative;
-        left: 50%;
         top: auto;
+        right: auto;
+        left: 50%;
         transform: translateX(-50%) translateY(10px) scale(0.95);
         margin-top: 15px;
+        margin-right: auto;
         width: 95%;
         max-width: 400px;
     }
@@ -835,8 +898,7 @@ tbody tr:hover {
         transform: translateX(-50%) translateY(0) scale(1);
     }
     #allocation-chart {
-        min-height: 300px;
-        height: 300px;
+         height: 350px;
     }
  }
  
@@ -1033,9 +1095,9 @@ tbody tr:hover {
     color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3), 0 0 12px 2px rgba(59, 130, 246, 0.15);
     font-family: var(--font-family);
-    backdrop-filter: blur(8px);
+    pointer-events: none; /* ADDED: Prevent tooltip from intercepting mouse */
  }
  
  /* Animation Keyframes */
@@ -1080,6 +1142,7 @@ tbody tr:hover {
     border-top-color: var(--accent-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.18);
 }
 
 @keyframes spin {
@@ -1122,6 +1185,7 @@ body.is-loading {
     animation: spin 0.8s linear infinite;
     margin-right: 6px;
     vertical-align: middle;
+    box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.18);
 }
 
 /* Last fetched timestamp */
@@ -1169,7 +1233,7 @@ input[type="number"] {
 input[type="text"]:focus,
 input[type="number"]:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25), 0 0 8px 2px rgba(59, 130, 246, 0.18);
     outline: none;
 }
 
@@ -1187,7 +1251,7 @@ button {
 button:not(:disabled):hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px 2px rgba(59, 130, 246, 0.18);
 }
 
 /* More distinct focus states for accessibility */
@@ -1196,6 +1260,7 @@ a:focus-visible,
 input:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25), 0 0 8px 2px rgba(59, 130, 246, 0.18);
 }
 
 /* Tooltip for better user guidance */
@@ -1207,41 +1272,19 @@ input:focus-visible {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 100%;
+    margin-bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.9); /* Slightly darker */
     color: white;
     padding: 6px 10px;
     border-radius: 4px;
     font-size: 0.8rem;
     white-space: nowrap;
-    z-index: 10;
+    z-index: 1050; /* Ensure it's above navbar */
     pointer-events: none;
     opacity: 0;
-    animation: fadeIn 0.2s ease-out forwards;
-}
-
-/* Refresh button specific styles */
-#refreshBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-#refreshBtn:hover:not(:disabled) {
-    background-color: #2563eb; /* Slightly darker blue */
-}
-
-#refreshBtn:active:not(:disabled) {
-    transform: translateY(1px);
+    animation: fadeIn 0.2s ease-out 0.1s forwards; /* Add slight delay */
 }
 
 /* Toast notification */
@@ -1440,4 +1483,385 @@ input:focus-visible {
 
 #overprice-chart .apexcharts-legend-text {
     font-weight: 500;
+}
+
+/* --- New Sticky Refresh Container Styles --- */
+.refresh-container-sticky {
+    position: sticky;
+    top: var(--nav-height); /* Stick right below the navbar */
+    background-color: rgba(10, 13, 20, 0.9); /* Match navbar bg */
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 0; /* Adjust padding as needed */
+    z-index: 990; /* Below navbar (1000) but above content */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1), 0 2px 12px 0 rgba(59, 130, 246, 0.10);
+    transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s cubic-bezier(0.4,0,0.2,1), margin 0.4s, padding 0.4s;
+    overflow: hidden;
+    max-height: 60px; /* normal height */
+    opacity: 1;
+    margin-bottom: 0;
+    pointer-events: auto;
+}
+.refresh-container-sticky.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    margin-bottom: -10px;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    pointer-events: none;
+}
+
+.refresh-content {
+    display: flex;
+    justify-content: flex-end; /* Align items to the right */
+    align-items: center;
+    gap: 15px; /* Space between button and timestamp */
+    max-width: 1800px; /* Match main container width */
+    margin: 0 auto; /* Center the content */
+    padding: 0 30px; /* Match main container padding */
+}
+
+/* Refresh button styles in the sticky bar */
+#refreshBtn {
+    font-family: var(--font-family, 'Inter', sans-serif);
+    font-weight: 600;
+    color: var(--text-color, #fff);
+    background: var(--card-bg-color, #23272f);
+    border: none;
+    border-radius: var(--border-radius-sm, 6px);
+    padding: 10px 22px 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+#refreshBtn .fas,
+#refreshBtn .spinner-sm {
+    font-size: 1.1em;
+    margin-right: 8px;
+    color: var(--accent-color, #3B82F6);
+}
+
+#refreshBtn .refresh-btn-label {
+    font-family: inherit;
+    font-weight: 600;
+    color: inherit;
+    letter-spacing: 0.01em;
+}
+
+#refreshBtn.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+#refreshBtn:hover:not(.is-loading) {
+    background: var(--accent-color, #3B82F6);
+    color: #fff;
+}
+
+/* Small spinner for buttons */
+.spinner-sm {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+    box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.18);
+}
+
+/* Timestamp styles in the sticky bar */
+#lastFetchedTime {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    white-space: nowrap;
+    margin-top: 0;
+}
+
+/* Adjust main content padding top if necessary to prevent overlap */
+.page-header {
+   /* Maybe add some padding-top if the sticky bar visually overlaps */
+   /* padding-top: 60px;  Example: Add space equivalent to the sticky bar height */
+   text-align: center;
+   padding: 40px 0 30px;
+}
+
+/* Remove user-menu positioning adjustments related to refresh btn */
+.user-menu {
+    position: static; /* Revert position */
+    transform: none; /* Revert transform */
+    flex-direction: row; /* Keep row layout if needed */
+    margin-left: auto; /* Push to the right */
+    gap: 10px;
+}
+
+.refresh-content {
+     padding: 0 20px;
+}
+
+@media (max-width: 992px) {
+    /* Remove user-menu positioning adjustments related to refresh btn */
+    .user-menu {
+        position: static; /* Revert position */
+        transform: none; /* Revert transform */
+        flex-direction: row; /* Keep row layout if needed */
+        margin-left: auto; /* Push to the right */
+        gap: 10px;
+    }
+    .refresh-content {
+         padding: 0 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Adjust sticky bar padding/font size */
+    .refresh-container-sticky {
+        padding: 6px 0;
+    }
+    .refresh-content {
+        padding: 0 15px;
+        gap: 10px;
+    }
+    #refreshBtn {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+    #lastFetchedTime {
+         font-size: 0.75rem;
+         /* Optionally hide timestamp if too crowded */
+         /* display: none; */
+    }
+    /* Remove user-menu adjustments for refresh btn */
+}
+
+@media (max-width: 576px) {
+     /* Further adjustments or hide elements in sticky bar */
+     .refresh-content {
+        justify-content: center; /* Center items on small screens */
+     }
+     #lastFetchedTime {
+        display: none; /* Hide timestamp */
+     }
+     /* Remove user-menu adjustments for refresh btn */
+     .user-menu {
+         /* Previous style to hide it was likely correct */
+         display: none;
+     }
+}
+
+/* Date and Momentum Badge Styles */
+.date-badge, .momentum-badge {
+    display: inline-flex;
+    align-items: center;
+    background: var(--card-bg-color, #181c23);
+    border: 1px solid var(--border-color, #232a36);
+    border-radius: 10px;
+    padding: 6px 16px 6px 12px;
+    margin-right: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.date-badge:last-child, .momentum-badge:last-child {
+    margin-right: 0;
+}
+.date-badge i {
+    color: var(--accent-color, #3B82F6);
+    font-size: 1.1em;
+    margin-right: 7px;
+}
+.momentum-badge i {
+    color: var(--accent-color, #3B82F6);
+    font-size: 1.1em;
+    margin-right: 7px;
+}
+.date-badge-value {
+    color: var(--text-muted-color, #94A3B8);
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+}
+.momentum-badge-value {
+    color: var(--accent-color, #3B82F6);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+}
+.momentum-badge-value #badge-momentum {
+    color: var(--accent-color, #3B82F6);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.card.allocation-card {
+    padding: 0;
+}
+
+/* --- Complex Chart Initialization Animation --- */
+.chart-animate-in {
+    opacity: 0;
+    transform: scale(0.92) translateY(40px);
+    filter: drop-shadow(0 0 0px var(--accent-color));
+    animation: chartEnter 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards, chartGlowPulse 1.2s 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes chartEnter {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(40px);
+        filter: drop-shadow(0 0 0px var(--accent-color));
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.04) translateY(-8px);
+        filter: drop-shadow(0 0 16px var(--accent-color));
+    }
+    80% {
+        transform: scale(0.98) translateY(2px);
+        filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: drop-shadow(0 0 0px var(--accent-color));
+    }
+}
+
+@keyframes chartGlowPulse {
+    0% {
+        box-shadow: 0 0 0px 0px var(--accent-color);
+    }
+    60% {
+        box-shadow: 0 0 32px 8px var(--accent-color);
+    }
+    100% {
+        box-shadow: 0 0 0px 0px var(--accent-color);
+    }
+}
+
+#border-glow-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  display: block;
+}
+
+/* --- Additions for White Glow Animation --- */
+.chart-animate-glow {
+    animation: chartGlowIn 1.2s ease-out forwards;
+    box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0); /* Start with no shadow */
+}
+
+@keyframes chartGlowIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95); /* Optional: keep a subtle scale */
+        box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1); /* Optional: scale in */
+        box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.4); /* Peak glow */
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0); /* Fade glow out */
+    }
+}
+/* --- End Additions --- */
+
+/* --- Target Allocation Section UI Improvements --- */
+.allocation-card-glass {
+    background: rgba(18, 21, 28, 0.65);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18), 0 2px 4px rgba(0,0,0,0.10);
+    backdrop-filter: blur(16px) saturate(120%);
+    border: 1.5px solid rgba(59, 130, 246, 0.10);
+    position: relative;
+    overflow: visible;
+}
+
+#allocation-glow-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.7;
+    filter: blur(8px);
+    transition: opacity 0.5s;
+}
+
+.allocation-info-icon {
+    color: var(--accent-color);
+    font-size: 1.1em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+.allocation-info-icon:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+.allocation-info-icon[data-tooltip]:hover::before,
+.allocation-info-icon[data-tooltip]:focus::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    top: 120%;
+    transform: translateX(-50%);
+    background: var(--tooltip-bg-color);
+    color: var(--tooltip-text-color);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(59,130,246,0.10);
+    z-index: 20;
+    opacity: 1;
+    pointer-events: none;
+    border: 1px solid var(--tooltip-border-color);
+    font-family: var(--font-family);
+    font-weight: 500;
+    animation: fadeIn 0.2s;
+}
+
+.allocation-stats-animated {
+    animation: allocationStatsFadeIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+@keyframes allocationStatsFadeIn {
+    0% { opacity: 0; transform: translateY(30px) scale(0.97); }
+    60% { opacity: 1; transform: translateY(-6px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 800px) {
+    .allocation-card-glass {
+        padding: 0 0 20px 0;
+        border-radius: var(--border-radius);
+    }
+    #allocation-glow-bg {
+        height: 320px;
+    }
+}
+@media (max-width: 500px) {
+    .allocation-card-glass {
+        padding: 0 0 10px 0;
+    }
+    #allocation-glow-bg {
+        height: 220px;
+    }
 } 

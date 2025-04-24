@@ -11,6 +11,8 @@
     <link rel="shortcut icon" href="images/favicon.ico">
     <link rel="apple-touch-icon" href="images/favicon.png">
     
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +31,7 @@
     </style>
 </head>
 <body>
+    <canvas id="border-glow-canvas"></canvas>
     <div id="loading-screen">
         <div class="logo">
             <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
@@ -57,21 +60,33 @@
             </ul>
             <div class="user-menu">
                 <div class="date-badge">
-                    <i class="far fa-calendar-alt"></i> <span id="badge-date">--</span>
+                    <i class="far fa-calendar-alt"></i> <span class="date-badge-value" id="badge-date">--</span>
                 </div>
                 <div class="momentum-badge">
-                    <i class="fas fa-chart-bar"></i> <span id="badge-momentum">Momentum: --</span>
+                    <i class="fas fa-chart-bar"></i> <span class="momentum-badge-value">Momentum: <span id="badge-momentum">--</span></span>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Add refresh button and last updated timestamp UNDER the navbar -->
+    <div class="refresh-container-sticky">
+        <div class="container">
+             <div class="refresh-content">
+                <button id="refreshBtn" data-tooltip="Refresh data from the server">
+                    <i class="fas fa-sync-alt"></i> <span class="refresh-btn-label">IVDAR Sheet API</span>
+                </button>
+                <span id="lastFetchedTime"></span>
+             </div>
+        </div>
+    </div>
+
     <!-- Page Header -->
     <div class="page-header">
-        <div class="container">
+        <div class="container" style="position: relative; display: flex; align-items: center; justify-content: center;">
             <h1 class="page-title"><span class="bold-first-letter">I</span>ntrinsic <span class="bold-first-letter">V</span>alue <span class="bold-first-letter">D</span>ynamic <span class="bold-first-letter">A</span>sset <span class="bold-first-letter">R</span>eallocation</h1>
-            <p class="page-subtitle">An Enlightened Approach to Long Term Investing</p>
         </div>
+        <p class="page-subtitle">An Enlightened Approach to Long Term Investing</p>
     </div>
 
     <div class="container">
@@ -93,20 +108,34 @@
                     <h3>Pop. SD (Gaussian)</h3>
                     <p id="summary-gauss-sd">--%</p>
                 </div>
-                <!-- Add refresh button and last updated timestamp -->
-                <div style="display: flex; flex-direction: column; align-items: center; margin-left: auto;">
-                    <button id="refreshBtn" data-tooltip="Refresh data from the server">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                    <span id="lastFetchedTime" style="margin-top: 5px;"></span>
-                </div>
             </section>
 
             <div class="grid-container">
-                <div class="card card-large">
-                    <h2>Target Allocation</h2>
+                <div class="card card-large allocation-card-glass">
+                    <h2 style="display: flex; align-items: center; gap: 10px;">
+                        Target Allocation
+                        <span class="allocation-info-icon" tabindex="0" aria-label="Info about Target Allocation" data-tooltip="Shows your recommended portfolio allocation. Click segments for details.">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </h2>
                     <div class="allocation-container">
-                        <div id="allocation-chart"></div>
+                        <!-- Animated Glow Background -->
+                        <canvas id="allocation-glow-bg" aria-hidden="true" style="position:absolute;z-index:0;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+                        <div id="allocation-chart" aria-label="Target Allocation Chart"></div>
+                        <div class="allocation-stats allocation-stats-animated" aria-label="Allocation Summary">
+                            <div class="stat-item">
+                                <span class="stat-label"><i class="fas fa-chart-pie" aria-hidden="true" style="color:var(--accent-color);margin-right:6px;"></i>Stock Total:</span>
+                                <span class="stat-value" id="stat-stock-total">--%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label"><i class="fas fa-hand-holding-usd" aria-hidden="true" style="color:var(--chart-color-4);margin-right:6px;"></i>Bonds:</span>
+                                <span class="stat-value" id="stat-bonds">--%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label"><i class="fas fa-coins" aria-hidden="true" style="color:var(--chart-color-5);margin-right:6px;"></i>Cash:</span>
+                                <span class="stat-value" id="stat-cash">--%</span>
+                            </div>
+                        </div>
                         <div class="allocation-info">
                             <button class="allocation-info-close" aria-label="Close details">&times;</button>
                             <h3>Selected Asset</h3>
@@ -117,21 +146,6 @@
                                 <button id="view-as-donut" class="active">Donut</button>
                                 <button id="view-as-bar">Bar</button>
                             </div>
-                            <div class="allocation-stats">
-                                <div class="stat-item">
-                                    <span class="stat-label">Stock Total:</span>
-                                    <span class="stat-value" id="stat-stock-total">--%</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Bonds:</span>
-                                    <span class="stat-value" id="stat-bonds">--%</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Cash:</span>
-                                    <span class="stat-value" id="stat-cash">--%</span>
-                                </div>
-                            </div>
-                            
                             <!-- Portfolio Calculator -->
                             <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; animation: fadeIn 0.5s ease;">
                                 <h3 style="font-size: 1rem; color: var(--text-muted-color); margin-bottom: 15px; display: flex; align-items: center;">
@@ -183,50 +197,40 @@
                                         This is an approximate allocation based on target percentages. Actual investment amounts may vary due to share pricing.
                                     </div>
                                 </div>
+                                <!-- INSERT DOLLAR RETURNS SECTION HERE -->
+                                <div id="dollarReturnsSection" style="display: none; /* Initially hidden */ margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                                    <h3 style="font-size: 1rem; color: var(--text-color); margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="fas fa-dollar-sign" style="margin-right: 8px; color: var(--accent-color); font-size: 0.9rem;"></i>
+                                        Estimated Dollar Returns
+                                    </h3>
+                                    <div class="table-container" style="overflow-x: auto;">
+                                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align: left; padding: 8px; color: var(--text-muted-color); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color);">Asset</th>
+                                                    <th style="text-align: right; padding: 8px; color: var(--text-muted-color); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color);">Allocation</th>
+                                                    <th style="text-align: right; padding: 8px; color: var(--text-muted-color); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color);">Est. 1Y Return</th>
+                                                    <th style="text-align: right; padding: 8px; color: var(--text-muted-color); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color);">Dollar Return</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="desktop-dollar-returns-body">
+                                                <!-- Results will be dynamically inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--text-muted-color); font-style: italic; text-align: center;">
+                                        Based on portfolio value: <span id="desktopPortfolioValueDisplay">$0</span>
+                                    </div>
+                                </div>
+                                <!-- END INSERTED SECTION -->
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h2>Estimated One Year Returns</h2>
-                    <div class="scenario-controls">
-                        <button id="returns-base" class="active">Base Case</button>
-                        <button id="returns-optimistic">Optimistic</button>
-                        <button id="returns-pessimistic">Pessimistic</button>
-                    </div>
-                    <div id="returns-chart" style="min-height: 380px;"></div>
-                    <p id="scenario-description">Expected market returns based on historical averages and current conditions.</p>
-                    
-                    <!-- Dollar Returns Table - Hidden until portfolio value is entered -->
-                    <div id="dollarReturnsSection" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
-                        <h3 style="font-size: 1rem; color: var(--text-color); margin-bottom: 15px; display: flex; align-items: center;">
-                            <i class="fas fa-dollar-sign" style="margin-right: 8px; color: var(--accent-color); font-size: 0.9rem;"></i>
-                            Estimated Dollar Returns
-                        </h3>
-                        <div class="table-container" style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                                <thead>
-                                    <tr>
-                                        <th>Asset</th>
-                                        <th style="text-align: right;">Allocation</th>
-                                        <th style="text-align: right;">Est. 1Y Return</th>
-                                        <th style="text-align: right;">Dollar Return</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="desktop-dollar-returns-body">
-                                    <!-- Results will be dynamically inserted here -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <div style="margin-top: 15px; font-size: 0.8rem; color: var(--text-muted-color); font-style: italic; text-align: center;">
-                            Based on portfolio value: <span id="desktopPortfolioValueDisplay">$0</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="card card-large">
                     <h2>Valuation (Overprice %)</h2>
+                    <div id="valuation-explanation" class="chart-explanation"></div>
                     <div id="overprice-chart" style="min-height: 380px; width: 100%;"></div>
                     
                     <!-- Dollar Valuation Impact Table - Hidden until portfolio value is entered -->
@@ -356,7 +360,7 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="script.js" defer></script>
-    <script src="animations.js" defer></script>
+    <script src="animations.js"></script>
+    <script src="script.js"></script>
 </body>
 </html> 
