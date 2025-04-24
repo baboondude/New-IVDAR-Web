@@ -1864,4 +1864,23 @@ input:focus-visible {
     #allocation-glow-bg {
         height: 220px;
     }
-} 
+}
+
+/* --- API Icon Specific Styles --- */
+.api-icon {
+    display: inline-flex; /* Helps stabilize layout */
+    align-items: center;  /* Vertically center if needed */
+    vertical-align: middle; /* Align with text */
+    position: relative; /* Needed for tooltip positioning context */
+    transition: color 0.2s ease; /* Smooth color transition if needed */
+    pointer-events: none; /* Disable ALL mouse interactions */
+}
+
+/* Prevent tooltip pseudo-element from interfering */
+.api-icon[data-tooltip]::before {
+    pointer-events: none; /* Tooltip doesn't block hover on icon */
+    /* Optional: Adjust positioning slightly if needed */
+    /* bottom: 110%; */
+}
+
+/* --- End API Icon Specific Styles --- */ 
