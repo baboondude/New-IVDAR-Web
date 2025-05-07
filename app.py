@@ -166,6 +166,9 @@ def _parse_assets(sheet_df: pd.DataFrame) -> list[dict]:
     if sheet_df.empty:
         return []
 
+    # DEBUG: Print sheet structure to aid debugging
+    print(f"Sheet dimensions: {sheet_df.shape[0]} rows, {sheet_df.shape[1]} columns")
+    
     # Find the first row that contains the first asset (heuristic: "SP500" in col B/index 1)
     asset_start_row_index = -1
     for i, row in sheet_df.iterrows():
@@ -173,16 +176,43 @@ def _parse_assets(sheet_df: pd.DataFrame) -> list[dict]:
             # Look for "sp500" case-insensitively in the second column (index 1)
             if "sp500" in str(row.iloc[1]).strip().lower():
                 asset_start_row_index = i # This row is the first asset row
+                print(f"Found SP500 at row index {i}")
                 break
         except IndexError:
             continue
 
     if asset_start_row_index == -1:
         print("Warning: Could not find asset start row ('SP500' in column B). Parsing might fail or be empty.")
-        # Fallback: Maybe return empty or raise error? For now, return empty.
-        # Or try a previous assumption like index 3, but it's risky:
-        # asset_start_row_index = 3
-        return [] # Return empty list if start not found
+        # Fallback: If we can't find SP500, try to look for any of the other assets
+        for i, row in sheet_df.iterrows():
+            try:
+                cell_val = str(row.iloc[1]).strip().lower()
+                if any(asset.lower() in cell_val for asset in ["nasdaq", "international", "bonds", "money market"]):
+                    asset_start_row_index = i
+                    print(f"Fallback: Found other asset at row index {i}: {row.iloc[1]}")
+                    break
+            except (IndexError, ValueError):
+                continue
+                
+        # If still not found, try a more aggressive approach - look for numeric values in critical columns
+        if asset_start_row_index == -1:
+            for i, row in sheet_df.iterrows():
+                try:
+                    # Check if columns C, D, H (indices 2,3,7) have numeric-like content
+                    # These are typically index_value, intrinsic_value, and target_allocation
+                    if (i > 5 and  # Skip header rows
+                        any(pd.to_numeric(str(row.iloc[col]).replace('%', ''), errors='coerce') 
+                            for col in [2, 3, 7] if col < len(row))):
+                        asset_start_row_index = i
+                        print(f"Last resort: Found likely asset row at index {i} with numeric data")
+                        break
+                except (IndexError, ValueError, TypeError):
+                    continue
+            
+        # If we still haven't found it, return empty list
+        if asset_start_row_index == -1:
+            print("ERROR: Could not locate asset data in spreadsheet. Check spreadsheet format.")
+            return []
 
     # Slice the DataFrame starting FROM the detected asset row
     df = sheet_df.iloc[asset_start_row_index:].copy()
@@ -221,14 +251,27 @@ def _parse_assets(sheet_df: pd.DataFrame) -> list[dict]:
     ]
     for c in num_cols_to_convert:
         if c in df.columns:
-            # Handle potential percentage strings before converting to numeric
-            # (Though raw data seems to have fractions already for assets)
-            # Keep this replace just in case some values are strings like '10%'
+            # Enhanced handling of problematic values before conversion
             if df[c].dtype == 'object':
-                 df[c] = df[c].astype(str).str.replace('%', '', regex=False)
+                # Replace Excel-style errors and other problematic values with empty string
+                df[c] = df[c].astype(str).replace(
+                    regex=r'^\s*#(N/A|DIV/0!|VALUE!|REF!|NAME\?|NUM!|NULL!)\s*$', 
+                    value=''
+                )
+                # Replace percentage signs
+                df[c] = df[c].astype(str).str.replace('%', '', regex=False)
+                # Explicit check for "--" which sometimes appears as placeholder
+                df[c] = df[c].astype(str).str.replace('--', '', regex=False)
+            
+            # More robust conversion to numeric
             df[c] = pd.to_numeric(df[c], errors='coerce')
-            # REMOVED: Division by 100 for specific columns, as raw data appears to be fractions already
-            # Example: if c in ["target_allocation", ...]: df[c] = df[c] / 100.0
+            
+            # Special handling for allocation percentages - ensure they're stored as fractions
+            if c in ["target_allocation", "est_growth", "est_dividends", "est_total_return"]:
+                # If values seem to be in percentage form (>1), convert to fraction
+                if df[c].max() > 1.5:  # Heuristic to detect percentages (e.g., 10.0 instead of 0.10)
+                    print(f"Converting column {c} from percentage to fraction")
+                    df[c] = df[c] / 100.0
 
     date_cols_to_convert = ["assoc_date"]
     for c in date_cols_to_convert:
@@ -242,6 +285,26 @@ def _parse_assets(sheet_df: pd.DataFrame) -> list[dict]:
 
     # Explicitly replace Infinity/-Infinity with None as well
     df = df.replace([np.inf, -np.inf], None)
+    
+    # Print stats about key columns to aid debugging
+    for col in ["index_value", "intrinsic_value", "overprice", "target_allocation", "today"]:
+        if col in df.columns:
+            non_null_count = df[col].notnull().sum()
+            print(f"Column {col}: {non_null_count}/{len(df)} non-null values")
+            if non_null_count > 0:
+                try:
+                    min_val = df[col].min()
+                    max_val = df[col].max()
+                    print(f"  Range: {min_val} to {max_val}")
+                except Exception as e:
+                    print(f"  Error calculating range: {e}")
+
+    # Verify each asset row has key columns populated
+    for idx, row in df.iterrows():
+        if row.get('asset') and (row.get('today') is None or row.get('target_allocation') is None):
+            asset_name = row.get('asset')
+            print(f"Warning: Asset '{asset_name}' has missing critical data: "
+                  f"today={row.get('today')}, target_allocation={row.get('target_allocation')}")
 
     return df.to_dict(orient="records")
 # ------------------------------------------------------------------
