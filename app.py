@@ -25,7 +25,8 @@ origins = [
     "http://localhost:5500",  # Allow Five Server default port
     "http://127.0.0.1:5500", # Allow Five Server default IP
     "https://enchanting-blancmange-ab1cd9.netlify.app", # Your Netlify site URL
-    "https://1a0b-2601-405-4a01-fb00-317b-3ade-6c5f-ab15.ngrok-free.app", # Your ngrok URL
+    "https://1a0b-2601-405-4a01-fb00-317b-3ade-6c5f-ab15.ngrok-free.app", # Your old ngrok URL
+    "https://edcb-2601-405-4a01-fb00-e41d-2deb-e7e3-862.ngrok-free.app", # Your new ngrok URL
     # You could add other origins here if needed, e.g., your deployed frontend URL
 ]
 
